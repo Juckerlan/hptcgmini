@@ -1,0 +1,14 @@
+GITHUB PAGES — POCKET TCG
+
+Upload the contents of this folder to the root of your GitHub repository.
+The repository root must contain:
+  index.html
+  cards/
+  data/
+  README.txt
+  .nojekyll
+
+Then enable:
+Settings → Pages → Deploy from a branch → main → / (root)
+
+This version is only the GitHub Pages preparation step. Multiplayer networking is not enabled yet.
