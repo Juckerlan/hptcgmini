@@ -157,7 +157,7 @@
     "type": "Ongoing Spell",
     "domain": "Transfiguration",
     "cost": 3,
-    "effect": "Countdown 2: Deal 1 damage to a Player, plus 1 additional damage for every 2 Creatures you control.",
+    "effect": "Countdown 1: Deal 1 damage to a Player, plus 1 additional damage for every 2 Creatures you control.",
     "image": "cards/transfiguration/transf_oppugno.png"
   },
   "Petrificus Totalus": {
