@@ -323,12 +323,24 @@ function spellChainApprove(){
  const approver=lobbyMode==='local'?viewPlayer:onlineRole;appendComm('log',approver,'Approved Resolve: '+done.card.name+(summoned?' • Created '+summoned.count+' '+summoned.name+' tokens':'')+'.');if(lobbyMode==='invite')onlineSend('action',{message:'Approved Resolve: '+done.card.name+(summoned?' • Created '+summoned.count+' '+summoned.name+' tokens':'')+'.'});
  spellChainBroadcast();
 }
+function spellChainDiscard(){
+ if(!spellChainActive()||(lobbyMode==='invite'&&!onlineConnected))return;
+ const top=spellChain[spellChain.length-1],me=lobbyMode==='local'?viewPlayer:onlineRole;
+ // Only the opposing player may choose the outcome of the pending spell.
+ if(top.player===me)return;
+ pushHistory();const done=spellChain.pop();
+ P[done.player].discard.push(done.card);
+ const msg='Discarded without resolving: '+done.card.name+'.';
+ appendComm('log',me,msg);
+ if(lobbyMode==='invite')onlineSend('action',{message:msg});
+ spellChainBroadcast();
+}
 function renderSpellChain(){
  const modal=document.getElementById('spellOverlay');if(!modal)return;
  const active=spellChainActive();modal.classList.toggle('open',active);if(!active)return;
  const top=spellChain[spellChain.length-1],me=lobbyMode==='local'?viewPlayer:onlineRole,waiting=top.player===me;
  document.getElementById('spellTitle').textContent='Spell Chain • '+spellChain.length+' pending';
- document.getElementById('spellHint').textContent=waiting?'Waiting for '+playerLabel(me===1?2:1)+' to respond or approve Resolve.':'Respond with a Quick Spell or approve Resolve for '+top.card.name+'.';
+ document.getElementById('spellHint').textContent=waiting?'Waiting for '+playerLabel(me===1?2:1)+' to respond or approve Resolve.':'Respond with a Quick Spell, Resolve, or Discard '+top.card.name+'.';
  const cards=document.getElementById('spellStack');cards.replaceChildren();
  spellChain.forEach((s,i)=>{const item=document.createElement('div');item.className='spellStackCard'+(i===spellChain.length-1?' top':'');const img=document.createElement('img');img.src=s.card.image||'';img.alt=s.card.name;const name=document.createElement('strong');name.textContent=s.card.name;const label=document.createElement('small');label.textContent=playerLabel(s.player)+(i===spellChain.length-1?' • NEXT':'');item.append(img,name,label);cards.appendChild(item)});
  const quick=document.getElementById('spellQuickList'),actions=document.getElementById('spellActions');quick.replaceChildren();actions.replaceChildren();
@@ -337,6 +349,7 @@ function renderSpellChain(){
  const available=P[me].hand.filter(isQuickSpell);if(!available.length){const empty=document.createElement('p');empty.textContent='No Quick Spells available.';quick.appendChild(empty)}
  available.forEach(c=>{const b=document.createElement('button');b.textContent=c.name+' • Cost '+c.cost;b.onclick=()=>spellChainCast(me,c.id,true);quick.appendChild(b)});
  const resolve=document.createElement('button');resolve.textContent='✓ Resolve '+top.card.name;resolve.style.background='#315a48';resolve.onclick=spellChainApprove;actions.appendChild(resolve);
+ const discard=document.createElement('button');discard.textContent='✕ Discard '+top.card.name;discard.style.background='#713a42';discard.title='Discard this spell without resolving its effect';discard.onclick=spellChainDiscard;actions.appendChild(discard);
  }else{const label=document.createElement('p');label.textContent='The opponent must respond. You cannot resolve your own spell.';actions.appendChild(label)}
 }
 
