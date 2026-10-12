@@ -396,5 +396,21 @@
     "effect": "",
     "image": "cards/tokens/token_magicalbirds.png",
     "token": true
+  },
+  "Diffindo": {
+    "type": "Spell",
+    "domain": "Transfiguration",
+    "cost": 5,
+    "effect": "Deal 3 damage to a target. Then, deal 3 damage to each Frozen target.",
+    "image": "cards/transfiguration/transf_diffindo.png"
+  },
+  "Yeti": {
+    "type": "Creature",
+    "domain": "Neutral",
+    "cost": 5,
+    "health": 5,
+    "damage": 3,
+    "effect": "Countdown 2: Freeze up to 3 targets.",
+    "image": "cards/creatures/transf_glaciusmaxima.png"
   }
 }
