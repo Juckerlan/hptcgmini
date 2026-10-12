@@ -51,20 +51,6 @@
 .rulesNote{padding:11px 13px;background:#1c2938;border-left:3px solid #85b8f0;color:#c8d8ec;border-radius:5px;margin:12px 0;font-size:13px}
 .rulesBadge{display:inline-block;border:1px solid #5b799e;border-radius:999px;padding:2px 9px;font-size:11px;color:#c6e0ff;margin-right:6px}
 @media(max-width:700px){.rulesLayout{display:block;overflow:auto}.rulesNav{position:sticky;top:0;z-index:1;display:flex;flex-direction:row;overflow:auto;border-right:0;border-bottom:1px solid #353c47;padding:7px}.rulesNav a{white-space:nowrap;padding:8px}.rulesContent{overflow:visible;padding:15px 12px 50px}.rulesSection{padding:16px}.rulesBar{min-height:52px}}
-
-/* V1.58 — Background artwork on non-gameplay screens only.
-   Place the image at cards/background/back_principal.jpg */
-#home, #builder, #database, #rules, #lobby {
-  background-image: linear-gradient(rgba(8, 12, 19, .48), rgba(8, 12, 19, .64)), url('cards/background/back_principal.jpg') !important;
-  background-position: center center !important;
-  background-repeat: no-repeat !important;
-  background-size: cover !important;
-  background-color: #0d1015 !important;
-}
-/* Keep interface panels legible over the artwork. */
-#home .homeBox { text-shadow: 0 2px 14px rgba(0,0,0,.85); }
-#home .homeBtn { background: rgba(23,28,36,.88); }
-#home .homeBtn:hover { background: rgba(36,43,53,.96); }
 </style></head><body><div id="home" class="home"><div class="homeBox"><h1>Pocket TCG Simulator</h1><p>Card images go inside the <b>cards/</b> folder. Main deck back: <b>cards/backs/main_back.png</b> • Lesson back: <b>cards/backs/lesson_back.png</b></p><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
 <div class="rulesBar"><h2>📖 Official Game Guide</h2><span style="flex:1"></span><button onclick="showHome()">← Back to Menu</button></div>
 <div class="rulesLayout"><nav class="rulesNav" aria-label="Rulebook sections">
