@@ -411,6 +411,6 @@
     "health": 5,
     "damage": 3,
     "effect": "Countdown 2: Freeze up to 3 targets.",
-    "image": "cards/creatures/transf_glaciusmaxima.png"
+    "image": "cards/creatures/creature_yeti.png"
   }
 }
