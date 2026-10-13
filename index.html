@@ -118,6 +118,33 @@
 #builder .savedDeckCover .savedDeckName{position:absolute;bottom:0;left:0;right:0;display:block;padding:20px 9px 9px;background:linear-gradient(transparent,rgba(0,0,0,.88));color:#fff;text-shadow:0 1px 4px #000;font-size:13px;font-weight:800;line-height:1.25;overflow-wrap:anywhere}
 #builder .savedDeckCover.noCover .savedDeckName{top:0;display:flex;align-items:end}
 #builder .savedDeckDelete{min-width:0;width:30px;height:32px;padding:0;font-size:20px}
+
+/* V1.77 — Deck Builder panel heading and deck delete alignment. */
+#builder .builderPanel .builderSection > h3{
+  display:block;
+  margin:0 0 10px;
+  padding:0;
+  color:#261b13;
+  background:transparent;
+  border:0;
+  text-decoration:none;
+  text-shadow:none;
+  font-size:14px;
+  font-weight:700;
+  line-height:1.4;
+  user-select:none;
+}
+#builder .savedDeckTile{align-items:center}
+#builder .savedDeckDelete{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  align-self:center;
+  text-align:center;
+  line-height:1;
+  box-sizing:border-box;
+  padding:0;
+}
 </style></head><body><div id="home" class="home"><div class="homeBox"><h1 class="homeTitle"><img src="backgrounds/hpmini_title.png" alt="Pocket TCG Simulator" onerror="this.style.display='none';this.parentNode.appendChild(document.createTextNode('Pocket TCG Simulator'))"></h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
 <div class="rulesBar"><h2>📖 Official Game Guide</h2><span style="flex:1"></span><button onclick="showHome()">← Back to Menu</button></div>
 <div class="rulesLayout"><nav class="rulesNav" aria-label="Rulebook sections">
