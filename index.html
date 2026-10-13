@@ -66,7 +66,21 @@
 .builderCardControls .qty{min-width:18px;text-align:center}
 #dbDetailModal{max-height:90vh;overflow-y:auto}
 @media(max-width:900px){.builderBody{grid-template-columns:190px minmax(0,1fr) 245px}.builderCards{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}}
-</style></head><body><div id="home" class="home"><div class="homeBox"><h1>Pocket TCG Simulator</h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
+
+/* V1.73: Custom menu artwork only; the gameplay board is untouched. */
+@font-face{font-family:"Animales Fantastic";src:url("backgrounds/Animales%20Fantastic.otf") format("opentype");font-style:normal;font-weight:normal;font-display:swap}
+#home,#lobby,#builder,#database,#rules{background-color:#10121a;background-image:linear-gradient(180deg,rgba(9,12,20,.24),rgba(9,12,20,.48)),url("backgrounds/hpmini_background.jpg");background-position:center;background-repeat:no-repeat;background-size:cover}
+#home .homeBox{max-height:100vh;overflow-y:auto;padding:clamp(16px,3vh,38px) 0}
+#home .homeTitle{margin:0 auto clamp(20px,4vh,44px);font-size:38px;line-height:1.2}
+#home .homeTitle img{display:block;max-width:min(760px,88vw);max-height:32vh;width:100%;height:auto;object-fit:contain;margin:auto}
+#home .homeBtn{background-color:#171c24;background-image:url("backgrounds/hpmini_textbox.png");background-size:100% 100%;background-position:center;background-repeat:no-repeat;border:0;color:#fff;text-shadow:0 2px 5px #000,0 0 12px #000b;font-family:"Animales Fantastic",Georgia,serif;font-weight:normal;font-size:clamp(22px,2.7vw,32px);transition:transform .18s,filter .18s}
+#home .homeBtn:hover,#home .homeBtn:focus-visible{background-image:url("backgrounds/hpmini_textbox.png");filter:brightness(1.17);transform:translateY(-3px)}
+#home .homeActions{width:min(750px,94%);max-width:100%;grid-template-columns:repeat(2,minmax(0,1fr))}
+#lobby .lobbyBar h2,#builder .builderBar h2,#database .databaseBar h2,#rules .rulesBar h2,#lobby .modeCard h3,#rules .rulesIntro h1{font-family:"Animales Fantastic",Georgia,serif;font-weight:normal}
+#lobby .modeCard,#lobby .seat,#builder .builderPanel,#database .dbCard,#rules .rulesIntro,#rules .rulesSection{background-color:#171c24;background-image:url("backgrounds/hpmini_textbox.png");background-position:center;background-repeat:no-repeat;background-size:100% 100%;border-color:transparent;text-shadow:0 1px 3px #000a}
+#lobby .lobbyBar,#builder .builderBar,#database .databaseBar,#rules .rulesBar,#rules .rulesNav{background:rgba(12,16,25,.83)}
+@media(max-width:650px){#home .homeActions{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}#home .homeBtn{height:clamp(95px,20vh,150px);font-size:clamp(16px,4.4vw,25px)}#home .homeTitle img{max-height:28vh}}
+</style></head><body><div id="home" class="home"><div class="homeBox"><h1 class="homeTitle"><img src="backgrounds/hpmini_title.png" alt="Pocket TCG Simulator" onerror="this.style.display='none';this.parentNode.appendChild(document.createTextNode('Pocket TCG Simulator'))"></h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
 <div class="rulesBar"><h2>📖 Official Game Guide</h2><span style="flex:1"></span><button onclick="showHome()">← Back to Menu</button></div>
 <div class="rulesLayout"><nav class="rulesNav" aria-label="Rulebook sections">
 <a href="#rules-overview">Overview</a><a href="#rules-decks">Deck Building</a><a href="#rules-setup">Setup & Mulligan</a><a href="#rules-turn">Turn Structure</a><a href="#rules-actions">Actions & Lessons</a><a href="#rules-cards">Card Types</a><a href="#rules-spells">Spell Chains</a><a href="#rules-creatures">Creatures & Damage</a><a href="#rules-keywords">Keywords</a><a href="#rules-tokens">Tokens</a><a href="#rules-online">Online & Local Play</a><a href="#rules-reference">Quick Reference</a>
