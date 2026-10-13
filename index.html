@@ -51,7 +51,21 @@
 .rulesNote{padding:11px 13px;background:#1c2938;border-left:3px solid #85b8f0;color:#c8d8ec;border-radius:5px;margin:12px 0;font-size:13px}
 .rulesBadge{display:inline-block;border:1px solid #5b799e;border-radius:999px;padding:2px 9px;font-size:11px;color:#c6e0ff;margin-right:6px}
 @media(max-width:700px){.rulesLayout{display:block;overflow:auto}.rulesNav{position:sticky;top:0;z-index:1;display:flex;flex-direction:row;overflow:auto;border-right:0;border-bottom:1px solid #353c47;padding:7px}.rulesNav a{white-space:nowrap;padding:8px}.rulesContent{overflow:visible;padding:15px 12px 50px}.rulesSection{padding:16px}.rulesBar{min-height:52px}}
-</style></head><body><div id="home" class="home"><div class="homeBox"><h1>Pocket TCG Simulator</h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
+</style>
+<style id="builderGalleryStyles">
+#builderCards{grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:12px}
+#builderCards .builderGalleryCard{background:#11151b;border:1px solid #3f4855;border-radius:10px;padding:7px;display:flex;flex-direction:column;gap:7px;min-width:0}
+#builderCards .builderGalleryPreview{display:block;width:100%;padding:0;border:0;background:transparent;cursor:pointer;text-align:center}
+#builderCards .builderGalleryPreview img{width:100%;aspect-ratio:0.72;object-fit:contain;border-radius:6px;display:block;background:#0b0e13}
+#builderCards .builderGalleryPreview:hover img{outline:2px solid #8ab4ff;outline-offset:1px}
+#builderCards .builderGalleryName{font-size:12px;font-weight:700;text-align:center;overflow-wrap:anywhere}
+#builderCards .builderGalleryMeta{font-size:10px;color:#929baa;text-align:center}
+#builderCards .builderGalleryControls{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:auto}
+#builderCards .builderGalleryControls button{min-width:32px;padding:5px 9px}
+#builderCards .builderGalleryQty{font-weight:900;min-width:24px;text-align:center}
+@media(max-width:700px){#builderCards{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}}
+</style>
+</head><body><div id="home" class="home"><div class="homeBox"><h1>Pocket TCG Simulator</h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
 <div class="rulesBar"><h2>📖 Official Game Guide</h2><span style="flex:1"></span><button onclick="showHome()">← Back to Menu</button></div>
 <div class="rulesLayout"><nav class="rulesNav" aria-label="Rulebook sections">
 <a href="#rules-overview">Overview</a><a href="#rules-decks">Deck Building</a><a href="#rules-setup">Setup & Mulligan</a><a href="#rules-turn">Turn Structure</a><a href="#rules-actions">Actions & Lessons</a><a href="#rules-cards">Card Types</a><a href="#rules-spells">Spell Chains</a><a href="#rules-creatures">Creatures & Damage</a><a href="#rules-keywords">Keywords</a><a href="#rules-tokens">Tokens</a><a href="#rules-online">Online & Local Play</a><a href="#rules-reference">Quick Reference</a>
@@ -501,7 +515,31 @@ function cardNames(){return Object.keys(CARD_DB)}
 function renderBuilder(){if(!builderDeck)return;document.getElementById('builderName').value=builderDeck.name||'';let sel=document.getElementById('builderAlly');sel.innerHTML='<option value="">Select Starting Ally</option>';['Harry Potter','Ron Weasley','Hermione Granger','Luna Lovegood','Neville Longbottom'].filter(n=>CARD_DB[n]&&CARD_DB[n].type==='Ally'&&CARD_DB[n].domain==='Neutral').forEach(n=>{let o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o)});sel.value=builderDeck.startingCharacter||'';document.getElementById('builderMainCount').textContent=builderDeck.mainDeck.length+' / 30';document.getElementById('builderLessonCount').textContent=builderDeck.lessonDeck.length+' / 10';let ok=deckIsComplete(builderDeck);let st=document.getElementById('builderComplete');st.textContent=ok?'Complete':'Incomplete';st.className=ok?'complete':'incomplete';renderBuilderCards();renderBuilderList();renderDeckList();document.getElementById('builderStatus').textContent=builderDeck.name?'Editing: '+builderDeck.name:'New deck'}
 function getDeckDomains(d){let set=new Set();(d.mainDeck||[]).forEach(n=>{let c=CARD_DB[n];if(c&&c.domain&&c.domain!=='Neutral')set.add(c.domain)});(d.lessonDeck||[]).forEach(n=>{let c=CARD_DB[n];if(c&&c.domain&&c.domain!=='Neutral')set.add(c.domain)});if(d.startingCharacter){let c=CARD_DB[d.startingCharacter];if(c&&c.domain&&c.domain!=='Neutral')set.add(c.domain)}return [...set]}
 function cardAllowedInDeck(n){let c=CARD_DB[n];if(!c||c.token)return false;if(c.domain==='Neutral'||c.type==='Creature')return true;let domains=getDeckDomains(builderDeck);return domains.length<2||domains.includes(c.domain)}
-function renderBuilderCards(){let box=document.getElementById('builderCards');if(!box||!builderDeck)return;let q=(document.getElementById('builderSearch').value||'').toLowerCase().trim();let domains=getDeckDomains(builderDeck);let info=document.getElementById('builderDomainInfo');info.innerHTML='<b>Domains: </b>'+(domains.length?domains.map(d=>'<span class="domainPill active">'+d+'</span>').join(' '):'<span class="dbNote">No domain selected yet — the first domain you add defines the deck.</span>')+'<div class="builderDomainInfo '+(domains.length>=2?'warn':'')+'">'+(domains.length>=2?'Maximum 2 domains reached. Creatures are always neutral.':'You may combine up to 2 domains. Potions &amp; Items count as one domain.')+'</div>';box.innerHTML='';cardNames().filter(n=>CARD_DB[n].type!=='Lesson'&&!CARD_DB[n].token).filter(n=>cardAllowedInDeck(n)).filter(n=>!q||n.toLowerCase().includes(q)||CARD_DB[n].type.toLowerCase().includes(q)||(CARD_DB[n].domain||'').toLowerCase().includes(q)).forEach(n=>{let row=document.createElement('div');row.className='bcard';let info2=document.createElement('div');let title=document.createElement('b');title.textContent=n;let br=document.createElement('br');let sm=document.createElement('small');sm.textContent=CARD_DB[n].type+(CARD_DB[n].cost!=null?' • Cost '+CARD_DB[n].cost:'')+' • '+(CARD_DB[n].domain||'Neutral');info2.append(title,br,sm);let controls=document.createElement('div');controls.style.cssText='display:flex;align-items:center;gap:3px';let minus=document.createElement('button');minus.textContent='−';minus.onclick=()=>removeBuilderCard(n);let qty=document.createElement('span');qty.className='qty';qty.textContent=builderDeck.mainDeck.filter(x=>x===n).length;let plus=document.createElement('button');plus.textContent='+';plus.onclick=()=>addBuilderCard(n);controls.append(minus,qty,plus);row.append(info2,controls);box.appendChild(row)})}
+function renderBuilderCards(){
+ let box=document.getElementById('builderCards');if(!box||!builderDeck)return;
+ let q=(document.getElementById('builderSearch').value||'').toLowerCase().trim();
+ let domains=getDeckDomains(builderDeck),info=document.getElementById('builderDomainInfo');
+ info.innerHTML='<b>Domains: </b>'+(domains.length?domains.map(d=>'<span class="domainPill active">'+d+'</span>').join(' '):'<span class="dbNote">No domain selected yet — the first domain you add defines the deck.</span>')+'<div class="builderDomainInfo '+(domains.length>=2?'warn':'')+'">'+(domains.length>=2?'Maximum 2 domains reached. Creatures are always neutral.':'You may combine up to 2 domains. Potions &amp; Items count as one domain.')+'</div>';
+ box.innerHTML='';
+ cardNames().filter(n=>CARD_DB[n].type!=='Lesson'&&!CARD_DB[n].token)
+ .filter(n=>cardAllowedInDeck(n))
+ .filter(n=>!q||n.toLowerCase().includes(q)||CARD_DB[n].type.toLowerCase().includes(q)||(CARD_DB[n].domain||'').toLowerCase().includes(q)||(CARD_DB[n].effect||'').toLowerCase().includes(q))
+ .forEach(n=>{
+  let c=CARD_DB[n],row=document.createElement('div');row.className='builderGalleryCard';
+  let preview=document.createElement('button');preview.type='button';preview.className='builderGalleryPreview';
+  preview.title='View '+n+' details';preview.setAttribute('aria-label','View '+n+' card information');
+  if(c.image){let img=document.createElement('img');img.src=c.image;img.alt=n;img.loading='lazy';img.onerror=function(){this.style.display='none';fallback.style.display='flex'};preview.appendChild(img)}
+  let fallback=document.createElement('span');fallback.textContent=n;fallback.style.cssText='display:'+(c.image?'none':'flex')+';aspect-ratio:0.72;align-items:center;justify-content:center;background:#202732;color:#b7c3d4;border-radius:6px;padding:6px;font-size:12px';
+  preview.appendChild(fallback);preview.onclick=()=>openCardDetail(n,c);
+  let name=document.createElement('div');name.className='builderGalleryName';name.textContent=n;
+  let meta=document.createElement('div');meta.className='builderGalleryMeta';meta.textContent=c.type+(c.cost!=null?' • Cost '+c.cost:'');
+  let controls=document.createElement('div');controls.className='builderGalleryControls';
+  let minus=document.createElement('button');minus.type='button';minus.textContent='−';minus.title='Remove '+n;minus.onclick=()=>removeBuilderCard(n);
+  let qty=document.createElement('span');qty.className='builderGalleryQty';qty.textContent=builderDeck.mainDeck.filter(x=>x===n).length;
+  let plus=document.createElement('button');plus.type='button';plus.textContent='+';plus.title='Add '+n;plus.onclick=()=>addBuilderCard(n);
+  controls.append(minus,qty,plus);row.append(preview,name,meta,controls);box.appendChild(row);
+ });
+}
 function addBuilderCard(n){if(builderDeck.mainDeck.length>=30){toast('Main Deck is full.');return}if(!cardAllowedInDeck(n)){toast('This card would add a third domain. Maximum is 2 domains.');return}let qty=builderDeck.mainDeck.filter(x=>x===n).length;if(qty>=3){toast('Maximum 3 copies of a card.');return}builderDeck.mainDeck.push(n);renderBuilder()}
 function removeBuilderCard(n){let i=builderDeck.mainDeck.lastIndexOf(n);if(i>=0)builderDeck.mainDeck.splice(i,1);renderBuilder()}
 function addLesson(n){if(builderDeck.lessonDeck.length>=10){toast('Lesson Deck is full.');return}if(!cardAllowedInDeck(n)){toast('This Lesson would add a third domain. Maximum is 2 domains.');return}builderDeck.lessonDeck.push(n);renderBuilder()}
