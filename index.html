@@ -107,6 +107,17 @@
 /* V1.75: The landing background fills the full browser viewport. */
 #home.home{position:fixed;inset:0;width:100vw;height:100vh;min-height:100dvh;box-sizing:border-box;background-image:linear-gradient(180deg,rgba(9,12,20,.24),rgba(9,12,20,.48)),url("backgrounds/hpmini_background.jpg");background-position:center center;background-size:cover;background-repeat:no-repeat;background-attachment:scroll;overflow-y:auto}
 #home .homeBox{position:relative;z-index:1;max-height:none}
+
+/* V1.76: saved deck covers use Starting Ally art; menu-only styling. */
+#builder .deckList{gap:12px}
+#builder .savedDeckTile{display:grid;grid-template-columns:minmax(0,1fr) 30px;gap:5px;align-items:start}
+#builder .savedDeckCover{position:relative;display:block;overflow:hidden;width:100%;height:156px;padding:0;border:1px solid #665b50;border-radius:10px;background:#1b2633;text-align:left;cursor:pointer}
+#builder .savedDeckCover img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 26%;transition:transform .2s ease}
+#builder .savedDeckCover:hover img{transform:scale(1.045)}
+#builder .savedDeckCover.active{border:2px solid #8ab4ff;box-shadow:0 0 0 2px #8ab4ff44}
+#builder .savedDeckCover .savedDeckName{position:absolute;bottom:0;left:0;right:0;display:block;padding:20px 9px 9px;background:linear-gradient(transparent,rgba(0,0,0,.88));color:#fff;text-shadow:0 1px 4px #000;font-size:13px;font-weight:800;line-height:1.25;overflow-wrap:anywhere}
+#builder .savedDeckCover.noCover .savedDeckName{top:0;display:flex;align-items:end}
+#builder .savedDeckDelete{min-width:0;width:30px;height:32px;padding:0;font-size:20px}
 </style></head><body><div id="home" class="home"><div class="homeBox"><h1 class="homeTitle"><img src="backgrounds/hpmini_title.png" alt="Pocket TCG Simulator" onerror="this.style.display='none';this.parentNode.appendChild(document.createTextNode('Pocket TCG Simulator'))"></h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
 <div class="rulesBar"><h2>📖 Official Game Guide</h2><span style="flex:1"></span><button onclick="showHome()">← Back to Menu</button></div>
 <div class="rulesLayout"><nav class="rulesNav" aria-label="Rulebook sections">
@@ -587,7 +598,32 @@ function importDeckCode(){
   deck.name=name;savedDecks[name]=JSON.parse(JSON.stringify(deck));persistSavedDecks();builderDeck=JSON.parse(JSON.stringify(deck));closeDeckCodeModal();renderBuilder();toast('Deck imported: '+name);
  }catch(e){toast('Import failed: '+e.message);}
 }
-function renderDeckList(){let box=document.getElementById('deckList');if(!box)return;box.innerHTML='';let names=Object.keys(savedDecks);if(!names.length){box.innerHTML='<span class="builderNote">No saved decks yet.</span>';return}names.forEach(n=>{let row=document.createElement('div');row.style.display='grid';row.style.gridTemplateColumns='1fr auto';row.style.gap='4px';let b=document.createElement('button');b.textContent=n;b.className=builderDeck&&builderDeck.name===n?'active':'';b.onclick=()=>editDeck(n);let d=document.createElement('button');d.textContent='×';d.onclick=()=>deleteDeck(n);row.append(b,d);box.appendChild(row)})}
+function renderDeckList(){
+ const box=document.getElementById('deckList');if(!box)return;
+ box.innerHTML='';
+ const names=Object.keys(savedDecks);
+ if(!names.length){box.innerHTML='<span class="builderNote">No saved decks yet.</span>';return;}
+ names.forEach(n=>{
+  const deck=savedDecks[n],ally=deck&&deck.startingCharacter;
+  const card=ally&&CARD_DB[ally];
+  const row=document.createElement('div');row.className='savedDeckTile';
+  const cover=document.createElement('button');cover.type='button';
+  cover.className='savedDeckCover'+(builderDeck&&builderDeck.name===n?' active':'');
+  cover.title='Edit '+n;cover.setAttribute('aria-label','Edit deck '+n);
+  if(card&&card.image){
+   const img=document.createElement('img');img.src=card.image;img.alt=ally+' deck cover';
+   img.loading='lazy';
+   img.onerror=()=>{img.style.display='none';cover.classList.add('noCover');};
+   cover.appendChild(img);
+  }else cover.classList.add('noCover');
+  const label=document.createElement('span');label.className='savedDeckName';label.textContent=n;
+  cover.appendChild(label);cover.onclick=()=>editDeck(n);
+  const del=document.createElement('button');del.type='button';del.className='savedDeckDelete';
+  del.textContent='×';del.title='Delete '+n;del.setAttribute('aria-label','Delete '+n);
+  del.onclick=()=>deleteDeck(n);
+  row.append(cover,del);box.appendChild(row);
+ });
+}
 function cardNames(){return Object.keys(CARD_DB)}
 function renderBuilder(){if(!builderDeck)return;document.getElementById('builderName').value=builderDeck.name||'';let sel=document.getElementById('builderAlly');sel.innerHTML='<option value="">Select Starting Ally</option>';['Harry Potter','Ron Weasley','Hermione Granger','Luna Lovegood','Neville Longbottom','Dobby'].filter(n=>CARD_DB[n]&&CARD_DB[n].type==='Ally'&&CARD_DB[n].domain==='Neutral').forEach(n=>{let o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o)});sel.value=builderDeck.startingCharacter||'';document.getElementById('builderMainCount').textContent=builderDeck.mainDeck.length+' / 30';document.getElementById('builderLessonCount').textContent=builderDeck.lessonDeck.length+' / 10';let ok=deckIsComplete(builderDeck);let st=document.getElementById('builderComplete');st.textContent=ok?'Complete':'Incomplete';st.className=ok?'complete':'incomplete';renderBuilderCards();renderBuilderList();renderDeckList();document.getElementById('builderStatus').textContent=builderDeck.name?'Editing: '+builderDeck.name:'New deck'}
 function getDeckDomains(d){let set=new Set();(d.mainDeck||[]).forEach(n=>{let c=CARD_DB[n];if(c&&c.domain&&c.domain!=='Neutral')set.add(c.domain)});(d.lessonDeck||[]).forEach(n=>{let c=CARD_DB[n];if(c&&c.domain&&c.domain!=='Neutral')set.add(c.domain)});if(d.startingCharacter){let c=CARD_DB[d.startingCharacter];if(c&&c.domain&&c.domain!=='Neutral')set.add(c.domain)}return [...set]}
