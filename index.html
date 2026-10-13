@@ -145,6 +145,23 @@
   box-sizing:border-box;
   padding:0;
 }
+
+/* V1.81 — Landing-only animated decorations. GIF files are loaded from backgrounds/. */
+#home.home{isolation:isolate}
+#home .landingSnitch{position:fixed;z-index:0;left:0;top:0;width:clamp(55px,8vw,110px);height:clamp(55px,8vw,110px);object-fit:contain;pointer-events:none;user-select:none;opacity:.92;will-change:transform;animation:landingSnitchFlight 19s linear infinite}
+@keyframes landingSnitchFlight{
+  0%{transform:translate(-130px,65vh) rotate(-12deg)}
+  20%{transform:translate(24vw,16vh) rotate(8deg)}
+  43%{transform:translate(68vw,60vh) rotate(-8deg)}
+  65%{transform:translate(85vw,20vh) rotate(9deg)}
+  83%{transform:translate(38vw,77vh) rotate(-10deg)}
+  100%{transform:translate(calc(100vw + 130px),40vh) rotate(6deg)}
+}
+#home .homeBtn{position:relative;isolation:isolate}
+#home .homeBtn::after{content:"";position:absolute;z-index:2;right:-16px;top:-24px;width:clamp(58px,8vw,110px);height:clamp(58px,8vw,110px);background:url("backgrounds/wand.gif") center/contain no-repeat;opacity:0;visibility:hidden;pointer-events:none;transform:rotate(-16deg) scale(.78);transition:opacity .16s ease,transform .2s ease,visibility .16s ease}
+#home .homeBtn:hover::after,#home .homeBtn:focus-visible::after{opacity:1;visibility:visible;transform:rotate(-16deg) scale(1)}
+@media(max-width:650px){#home .homeBtn::after{right:-10px;top:-15px;width:65px;height:65px}}
+@media(prefers-reduced-motion:reduce){#home .landingSnitch{animation:none;transform:translate(70vw,20vh)}#home .homeBtn::after{transition:none}}
 </style>
 <style id="startingAllyStatusStyles">
 .char{overflow:visible}
@@ -154,7 +171,7 @@
 .char .startingAllyStates .frozen{color:#8fd3ff}
 .char .startingAllyStates .shield{color:#b9c8ff}
 </style>
-</head><body><div id="home" class="home"><div class="homeBox"><h1 class="homeTitle"><img src="backgrounds/hpmini_title.png" alt="Pocket TCG Simulator" onerror="this.style.display='none';this.parentNode.appendChild(document.createTextNode('Pocket TCG Simulator'))"></h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
+</head><body><div id="home" class="home"><img class="landingSnitch" src="backgrounds/snitch.gif" alt="" aria-hidden="true" onerror="this.style.display='none'"><div class="homeBox"><h1 class="homeTitle"><img src="backgrounds/hpmini_title.png" alt="Pocket TCG Simulator" onerror="this.style.display='none';this.parentNode.appendChild(document.createTextNode('Pocket TCG Simulator'))"></h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
 <div class="rulesBar"><h2>📖 Official Game Guide</h2><span style="flex:1"></span><button onclick="showHome()">← Back to Menu</button></div>
 <div class="rulesLayout"><nav class="rulesNav" aria-label="Rulebook sections">
 <a href="#rules-overview">Overview</a><a href="#rules-decks">Deck Building</a><a href="#rules-setup">Setup & Mulligan</a><a href="#rules-turn">Turn Structure</a><a href="#rules-actions">Actions & Lessons</a><a href="#rules-cards">Card Types</a><a href="#rules-spells">Spell Chains</a><a href="#rules-creatures">Creatures & Damage</a><a href="#rules-keywords">Keywords</a><a href="#rules-tokens">Tokens</a><a href="#rules-online">Online & Local Play</a><a href="#rules-reference">Quick Reference</a>
