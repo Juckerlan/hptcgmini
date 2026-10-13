@@ -27,13 +27,6 @@
     "effect": "Once per turn, if you control 6 or more Lessons, you may discard 2 Lessons to create a Thestral Token.",
     "image": "cards/allies/char_luna.png"
   },
-  "Neville Longbottom": {
-    "type": "Ally",
-    "domain": "Neutral",
-    "cost": 0,
-    "effect": "Once per turn, when you play a Creature, you may restore 2 Health to a Creature or Player.",
-    "image": "cards/allies/char_neville.png"
-  },
   "Aquamenti": {
     "type": "Spell",
     "domain": "Charms",
@@ -115,7 +108,7 @@
     "type": "Spell",
     "domain": "Transfiguration",
     "cost": 2,
-    "effect": "Additional Cost — Discard 1 Transfiguration Lesson: Create 3 Magical Birds Tokens.",
+    "effect": "Additional Cost — Discard 1 Transfiguration Lesson: Create 3 Bird Tokens.",
     "image": "cards/transfiguration/transf_avis.png"
   },
   "Confundus": {
@@ -139,25 +132,11 @@
     "effect": "Destroy a Spell with a Cost of 4 or less. If you do, draw a card.",
     "image": "cards/transfiguration/transf_batbogeyhex.png"
   },
-  "Glacius": {
-    "type": "Ongoing Spell",
-    "domain": "Transfiguration",
-    "cost": 2,
-    "effect": "Countdown 1: Freeze a target.",
-    "image": "cards/transfiguration/transf_glacius.png"
-  },
-  "Glacius Maxima": {
-    "type": "Ongoing Spell",
-    "domain": "Transfiguration",
-    "cost": 4,
-    "effect": "Countdown 2: Freeze up to 3 targets.",
-    "image": "cards/transfiguration/transf_glaciusmaxima.png"
-  },
   "Oppugno": {
     "type": "Ongoing Spell",
     "domain": "Transfiguration",
     "cost": 3,
-    "effect": "Countdown 1: Deal 1 damage to a Player, plus 1 additional damage for every 2 Creatures you control.",
+    "effect": "Countdown 2: Deal 1 damage to a Player, plus 1 additional damage for every 2 Creatures you control.",
     "image": "cards/transfiguration/transf_oppugno.png"
   },
   "Petrificus Totalus": {
@@ -238,9 +217,9 @@
   "Firecrab": {
     "type": "Creature",
     "domain": "Neutral",
-    "cost": 3,
+    "cost": 4,
     "health": 4,
-    "damage": 2,
+    "damage": 1,
     "effect": "Block (You must deal damage to me first).",
     "image": "cards/creatures/creature_firecrab.png"
   },
@@ -364,53 +343,11 @@
     "effect": "All the creatures your control deal 1 aditional damage.",
     "image": "cards/potions/potinos_wealeyfireworks.png"
   },
-  "Stone Guardian": {
-    "type": "Creature",
-    "domain": "Neutral",
-    "cost": 0,
-    "health": 4,
-    "life": 4,
-    "damage": 1,
-    "effect": "Block (You must deal damage to me first).",
-    "image": "cards/tokens/token_stoneguardian.png",
-    "token": true
-  },
-  "Luna's Thestral": {
-    "type": "Creature",
-    "domain": "Neutral",
-    "cost": 0,
-    "health": 3,
-    "life": 3,
-    "damage": 3,
-    "effect": "Sacrifice this and discard 2 Lessons: Deal 2 damage to a target, plus 1 additional damage for each Spell in your discard pile.",
-    "image": "cards/tokens/token_thestrals.png",
-    "token": true
-  },
-  "Magical Birds": {
-    "type": "Creature",
-    "domain": "Neutral",
-    "cost": 0,
-    "health": 1,
-    "life": 1,
-    "damage": 1,
-    "effect": "",
-    "image": "cards/tokens/token_magicalbirds.png",
-    "token": true
-  },
-  "Diffindo": {
+  "Incendio": {
     "type": "Spell",
-    "domain": "Transfiguration",
+    "domain": "Charms",
     "cost": 5,
-    "effect": "Deal 3 damage to a target. Then, deal 3 damage to each Frozen target.",
-    "image": "cards/transfiguration/transf_diffindo.png"
-  },
-  "Yeti": {
-    "type": "Creature",
-    "domain": "Neutral",
-    "cost": 5,
-    "health": 5,
-    "damage": 3,
-    "effect": "Countdown 2: Freeze up to 3 targets.",
-    "image": "cards/creatures/creature_yeti.png"
+    "effect": "Deal 4 damage to a target and 1 damage to each other valid target in play.",
+    "image": "cards/charms/charm_incendio.png"
   }
 }
