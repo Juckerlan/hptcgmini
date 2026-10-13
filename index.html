@@ -163,6 +163,11 @@
 @media(max-width:650px){#home .homeBtn::after{right:-10px;top:-15px;width:65px;height:65px}}
 @media(prefers-reduced-motion:reduce){#home .landingSnitch{animation:none;transform:translate(70vw,20vh)}#home .homeBtn::after{transition:none}}
 
+
+/* V1.83: Snitch escapes when the pointer approaches; existing GIF remains unchanged. */
+#home .landingSnitch.snitchInteractive{animation:none!important;transform:none!important;transition:left .48s cubic-bezier(.16,.82,.28,1),top .48s cubic-bezier(.16,.82,.28,1);}
+@media(prefers-reduced-motion:reduce){#home .landingSnitch.snitchInteractive{transition:none}}
+
 /* V1.82: Card detail overlay shared by Deck Builder and Database. */
 #dbDetailModal{z-index:1400;display:none;max-height:min(90vh,900px);overflow-y:auto;overscroll-behavior:contain;width:min(740px,94vw);}
 #dbDetailModal.show{display:block;}
@@ -851,4 +856,43 @@ function leaveGame(){spellChainReset();resetUndoRequests();resetComm();if(lobbyM
 
 function resetGame(){resetUndoRequests();history=[];phase='setup';turn=1;sel=null;selDeck=null;for(let p=1;p<3;p++)Object.assign(P[p],newP());document.getElementById('modal').style.display='none';document.getElementById('turnOrderModal').style.display='none';document.getElementById('deckModal').style.display='none';document.getElementById('menu').style.display='none';document.getElementById('deckMenu').style.display='none';document.getElementById('game').classList.add('screenHidden');document.getElementById('lobby').classList.remove('screenHidden');openLobby();toast('Match reset. Return to the lobby.')}
 updateDeckLoadUI();renderDeckList();
+
+/* V1.83: Golden Snitch reacts to cursor proximity only on the landing page. */
+(function initEscapingSnitch(){
+ const home=document.getElementById('home');
+ const snitch=home?.querySelector('.landingSnitch');
+ if(!home||!snitch)return;
+ let interactive=false,lastEscape=0,lastMouseX=-1000,lastMouseY=-1000;
+ const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+ function bounds(){return {w:snitch.offsetWidth||85,h:snitch.offsetHeight||85,maxX:Math.max(0,innerWidth-(snitch.offsetWidth||85)),maxY:Math.max(0,innerHeight-(snitch.offsetHeight||85))}}
+ function move(x,y){const b=bounds();snitch.style.left=Math.max(0,Math.min(b.maxX,x))+'px';snitch.style.top=Math.max(0,Math.min(b.maxY,y))+'px'}
+ function activate(){if(interactive)return;const r=snitch.getBoundingClientRect();snitch.style.left=r.left+'px';snitch.style.top=r.top+'px';snitch.classList.add('snitchInteractive');interactive=true;}
+ function flee(mx,my){
+  const r=snitch.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+  const dx=cx-mx,dy=cy-my,dist=Math.hypot(dx,dy);
+  if(dist>145)return;
+  const now=performance.now();if(now-lastEscape<320)return;
+  activate();lastEscape=now;
+  const angle=dist>5?Math.atan2(dy,dx):Math.random()*Math.PI*2;
+  const distance=190+Math.random()*150;
+  const b=bounds();
+  let nx=cx+Math.cos(angle)*distance-b.w/2,ny=cy+Math.sin(angle)*distance-b.h/2;
+  nx=Math.max(0,Math.min(b.maxX,nx));ny=Math.max(0,Math.min(b.maxY,ny));
+  if(Math.hypot(nx-(cx-b.w/2),ny-(cy-b.h/2))<75){nx=Math.random()*b.maxX;ny=Math.random()*b.maxY;}
+  move(nx,ny);
+ }
+ home.addEventListener('pointermove',e=>{
+  if(e.pointerType==='touch'||home.classList.contains('screenHidden'))return;
+  lastMouseX=e.clientX;lastMouseY=e.clientY;flee(e.clientX,e.clientY);
+ },{passive:true});
+ /* Once disturbed, the Snitch keeps roaming without snapping back to the CSS flight path. */
+ setInterval(()=>{
+  if(!interactive||home.classList.contains('screenHidden')||reduceMotion.matches)return;
+  const r=snitch.getBoundingClientRect();
+  if(Math.hypot(r.left+r.width/2-lastMouseX,r.top+r.height/2-lastMouseY)<170)return;
+  const b=bounds();move(Math.random()*b.maxX,Math.random()*b.maxY);
+ },3000);
+ window.addEventListener('resize',()=>{if(interactive){const r=snitch.getBoundingClientRect();move(r.left,r.top)}},{passive:true});
+})();
+
 </script></body></html>
