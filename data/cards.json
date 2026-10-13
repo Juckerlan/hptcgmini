@@ -433,5 +433,12 @@
     "damage": 3,
     "effect": "Countdown 2: Freeze up to 3 targets.",
     "image": "cards/creatures/creature_yeti.png"
+  },
+  "Dobby": {
+    "type": "Ally",
+    "domain": "Neutral",
+    "cost": 0,
+    "effect": "Once per turn, you may discard 2 Lessons to destroy a Spell targeting you.",
+    "image": "cards/allies/char_dobby.png"
   }
 }
