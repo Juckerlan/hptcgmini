@@ -80,6 +80,29 @@
 #lobby .modeCard,#lobby .seat,#builder .builderPanel,#database .dbCard,#rules .rulesIntro,#rules .rulesSection{background-color:#171c24;background-image:url("backgrounds/hpmini_textbox.png");background-position:center;background-repeat:no-repeat;background-size:100% 100%;border-color:transparent;text-shadow:0 1px 3px #000a}
 #lobby .lobbyBar,#builder .builderBar,#database .databaseBar,#rules .rulesBar,#rules .rulesNav{background:rgba(12,16,25,.83)}
 @media(max-width:650px){#home .homeActions{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}#home .homeBtn{height:clamp(95px,20vh,150px);font-size:clamp(16px,4.4vw,25px)}#home .homeTitle img{max-height:28vh}}
+
+/* V1.74: readable ink on parchment artwork, while dark controls keep light text. */
+#lobby .modeCard,#lobby .seat,#builder .builderPanel,#database .dbCard,#rules .rulesIntro,#rules .rulesSection{color:#261b13;text-shadow:none}
+#lobby .modeCard h3,#lobby .modeCard p,#lobby .seat h3,#lobby .seatStatus,
+#builder .builderPanel h2,#builder .builderPanel h3,#builder .builderPanel .builderSection h3,
+#builder .builderPanel .builderNote,#builder .builderPanel .builderStat,
+#builder .builderPanel .builderDomainInfo,#builder .builderPanel .dbNote,
+#database .dbCard h3,#database .dbCard .dbMeta,
+#rules .rulesIntro h1,#rules .rulesIntro p,#rules .rulesSection h2,#rules .rulesSection h3,
+#rules .rulesSection p,#rules .rulesSection ul,#rules .rulesSection ol,#rules .rulesSection li,
+#rules .rulesSection .rulesBadge{color:#261b13;text-shadow:none}
+#lobby .modeCard p,#lobby .seatStatus,#builder .builderPanel .builderNote,
+#builder .builderPanel .builderDomainInfo,#database .dbCard .dbMeta{color:#49382b}
+/* Inputs, dark-blue pills, buttons, artwork cards, and tinted rule callouts stay legible in white. */
+#lobby .modeCard button,#lobby .seat button,#lobby .seat select,#lobby .seat input,
+#builder .builderPanel button,#builder .builderPanel select,#builder .builderPanel input,
+#builder .builderPanel .bcard,#builder .builderPanel .builderCardTitle,
+#builder .builderPanel .domainPill,#builder .builderPanel .domainBar,
+#database .dbCard button,#database .dbCard .dbDomain,
+#rules .rulesSection button,#rules .rulesSection .rulesNote,#rules .rulesSection .rulesNote *,
+#rules .rulesSection .rulesTable th{color:#f0f3f9;text-shadow:none}
+#rules .rulesSection .rulesTable td{color:#261b13}
+#home .homeBtn{color:#fff;text-shadow:0 2px 5px #000,0 0 12px #000b}
 </style></head><body><div id="home" class="home"><div class="homeBox"><h1 class="homeTitle"><img src="backgrounds/hpmini_title.png" alt="Pocket TCG Simulator" onerror="this.style.display='none';this.parentNode.appendChild(document.createTextNode('Pocket TCG Simulator'))"></h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
 <div class="rulesBar"><h2>📖 Official Game Guide</h2><span style="flex:1"></span><button onclick="showHome()">← Back to Menu</button></div>
 <div class="rulesLayout"><nav class="rulesNav" aria-label="Rulebook sections">
