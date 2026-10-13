@@ -447,5 +447,33 @@
     "cost": 3,
     "effect": "Additional Cost — Discard 1 Lesson: You may return an Item you control to your hand. If you paid the additional cost, return an Item from your discard pile to your hand.",
     "image": "cards/charms/charm_wingardium.png"
+  },
+  "Nebulus": {
+    "type": "Ongoing Spell",
+    "domain": "Charms",
+    "cost": 4,
+    "effect": "Countdown 2: Your opponent cannot target you with cards they control.",
+    "image": "cards/charms/charm_wingardium.png"
+  },
+  "Protego Totalum": {
+    "type": "Spell",
+    "domain": "Charms",
+    "cost": 6,
+    "effect": "Shield 5 to you and each Creature you control.",
+    "image": "cards/charms/charm_protego_t.png"
+  },
+  "Slug Vomiting Charm": {
+    "type": "Ongoing Spell",
+    "domain": "Charms",
+    "cost": 2,
+    "effect": "Countdown 2: Freeze your opponent's Starting Ally. Then, your opponent discards a card.",
+    "image": "cards/charms/charm_slugs.png"
+  },
+  "Expecto Patronus": {
+    "type": "Spell",
+    "domain": "Transfiguration",
+    "cost": 4,
+    "effect": "Destroy a Creature with a Cost of 5 or less then draw 1. If it was a Dementor, draw 2.",
+    "image": "cards/transfiguration/transf_patronus.png"
   }
 }
