@@ -296,10 +296,7 @@ function canSpendAction(p,c,lesson=false){
  return true;
 }
 function spendAction(p,c,lesson=false){if(phase!=='game')return;P[p].actionsLeft=(P[p].actionsLeft??2)-actionCost(c,p);if(lesson)P[p].lessonsPlayed=(P[p].lessonsPlayed||0)+1;}
-<<<<<<< HEAD
 let basicCastEventSerial=0,basicCastSeenSerial=0,basicCastEventPlayer=0;
-=======
->>>>>>> 6135382416cb75005c188e1097d2a78b0097d797
 function showBasicCastNotice(p){
  const old=document.getElementById('basicCastNotice');if(old)old.remove();
  const el=document.createElement('div');el.id='basicCastNotice';
