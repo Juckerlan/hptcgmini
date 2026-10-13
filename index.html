@@ -162,6 +162,15 @@
 #home .homeBtn:hover::after,#home .homeBtn:focus-visible::after{opacity:1;visibility:visible;transform:rotate(-16deg) scale(1)}
 @media(max-width:650px){#home .homeBtn::after{right:-10px;top:-15px;width:65px;height:65px}}
 @media(prefers-reduced-motion:reduce){#home .landingSnitch{animation:none;transform:translate(70vw,20vh)}#home .homeBtn::after{transition:none}}
+
+/* V1.82: Card detail overlay shared by Deck Builder and Database. */
+#dbDetailModal{z-index:1400;display:none;max-height:min(90vh,900px);overflow-y:auto;overscroll-behavior:contain;width:min(740px,94vw);}
+#dbDetailModal.show{display:block;}
+#database{min-height:0;}
+#database .databaseBody{min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#8c785d #1a1b1e;}
+#database .dbGrid{align-content:start;padding-bottom:36px;}
+#database .dbCard{cursor:pointer;}
+#database .dbCard:hover{filter:brightness(1.08);}
 </style>
 <style id="startingAllyStatusStyles">
 .char{overflow:visible}
@@ -209,7 +218,7 @@ let savedDecks=loadSavedDecks();
 let builderDeck=null;
 function loadSavedDecks(){try{let decks=JSON.parse(localStorage.getItem('pocketTCGSavedDecks')||'{}');const lessonAliases={'CHARMS LESSON':'Charm Lesson','CHARM LESSON':'Charm Lesson','TRANSFIGURATION LESSON':'Transfiguration Lesson','QUIDDITCH LESSON':'Quidditch Lesson','POTIONS LESSON':'Potions & Items Lesson','POTIONS & ITEMS LESSON':'Potions & Items Lesson','DARK MAGIC LESSON':'Dark Arts Lesson','DARK ARTS LESSON':'Dark Arts Lesson'};Object.values(decks).forEach(d=>{if(Array.isArray(d.lessonDeck))d.lessonDeck=d.lessonDeck.map(n=>lessonAliases[n]||n)});return decks}catch(e){return {}}}
 function persistSavedDecks(){localStorage.setItem('pocketTCGSavedDecks',JSON.stringify(savedDecks))}
-function showHome(){document.getElementById('rules').classList.add('screenHidden');if(typeof onlineChannel!=='undefined'&&onlineChannel)leaveOnlineRoom();document.getElementById('home').classList.remove('screenHidden');document.getElementById('builder').classList.add('screenHidden');document.getElementById('database').classList.add('screenHidden');document.getElementById('game').classList.add('screenHidden');document.getElementById('lobby').classList.add('screenHidden');document.getElementById('dbDetailModal').style.display='none';}
+function showHome(){document.getElementById('rules').classList.add('screenHidden');if(typeof onlineChannel!=='undefined'&&onlineChannel)leaveOnlineRoom();document.getElementById('home').classList.remove('screenHidden');document.getElementById('builder').classList.add('screenHidden');document.getElementById('database').classList.add('screenHidden');document.getElementById('game').classList.add('screenHidden');document.getElementById('lobby').classList.add('screenHidden');closeCardDetail();}
 let lobbyMode='local';let lobbyJoined={1:true,2:false};let lobbyConfirmed={1:false,2:false};
 const ONLINE_URL='https://svfqvexwzairejtrorhl.supabase.co';
 const ONLINE_KEY='sb_publishable_y2Cn6KP-rzbEcYTDxrm-Vw_rkfgMtkC';
@@ -571,7 +580,7 @@ function startGameFromLobby(){if(lobbyMode==='invite'){
  }if(!(lobbyJoined[1]&&lobbyJoined[2]&&lobbyConfirmed[1]&&lobbyConfirmed[2])){toast('Both players must confirm their decks.');return}try{resetComm();viewPlayer=1;document.getElementById('game').classList.remove('view2');startGame();document.getElementById('lobby').classList.add('screenHidden');document.getElementById('game').classList.remove('screenHidden');document.getElementById('switchSideBtn').style.display=lobbyMode==='local'?'inline-block':'none';document.getElementById('switchSideBtn').textContent='Switch Side • Player 1'}catch(e){console.error(e);document.getElementById('game').classList.add('screenHidden');document.getElementById('lobby').classList.remove('screenHidden');toast('Could not start the game. Check that both saved decks are valid.');}}
 function showRules(){for(const id of ['home','builder','database','lobby','game'])document.getElementById(id).classList.add('screenHidden');document.getElementById('rules').classList.remove('screenHidden');document.querySelector('.rulesContent').scrollTop=0;}
 function showPlay(){document.getElementById('rules').classList.add('screenHidden');document.getElementById('home').classList.add('screenHidden');document.getElementById('builder').classList.add('screenHidden');document.getElementById('database').classList.add('screenHidden');document.getElementById('game').classList.add('screenHidden');document.getElementById('lobby').classList.remove('screenHidden');openLobby();}
-function showDatabase(){document.getElementById('rules').classList.add('screenHidden');document.getElementById('home').classList.add('screenHidden');document.getElementById('builder').classList.add('screenHidden');document.getElementById('lobby').classList.add('screenHidden');document.getElementById('game').classList.add('screenHidden');document.getElementById('database').classList.remove('screenHidden');renderDatabase()}
+function showDatabase(){document.getElementById('rules').classList.add('screenHidden');document.getElementById('home').classList.add('screenHidden');document.getElementById('builder').classList.add('screenHidden');document.getElementById('lobby').classList.add('screenHidden');document.getElementById('game').classList.add('screenHidden');document.getElementById('database').classList.remove('screenHidden');renderDatabase();document.querySelector('#database .databaseBody').scrollTop=0;}
 function renderDatabase(){
  let grid=document.getElementById('databaseGrid');if(!grid)return;
  let q=(document.getElementById('dbSearch').value||'').toLowerCase().trim();
@@ -602,9 +611,10 @@ function openCardDetail(n,c){
  if(c.lessonReq) html+='<div class="builderStat"><span>Lesson Requirement</span><b>'+c.lessonReq+'</b></div>';
  html+='<div style="margin-top:12px;color:#929baa;font-size:12px">'+(c.effect||'No card text entered yet.')+'</div>';
  document.getElementById('dbDetailBody').innerHTML=html;
+ document.getElementById('dbDetailModal').style.display='block';
  document.getElementById('dbDetailModal').classList.add('show');
 }
-function closeCardDetail(){document.getElementById('dbDetailModal').classList.remove('show')}
+function closeCardDetail(){const modal=document.getElementById('dbDetailModal');modal.classList.remove('show');modal.style.display='none';}
 function showBuilder(){document.getElementById('rules').classList.add('screenHidden');document.getElementById('home').classList.add('screenHidden');document.getElementById('database').classList.add('screenHidden');document.getElementById('game').classList.add('screenHidden');document.getElementById('builder').classList.remove('screenHidden');renderDeckList();if(!builderDeck)newDeck();else renderBuilder();}
 function newDeck(){builderDeck={name:'',startingCharacter:'',mainDeck:[],lessonDeck:[]};renderBuilder();}
 function editDeck(name){let d=savedDecks[name];if(!d)return;builderDeck=JSON.parse(JSON.stringify(d));renderBuilder();}
