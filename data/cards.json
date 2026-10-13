@@ -475,5 +475,19 @@
     "cost": 4,
     "effect": "Destroy a Creature with a Cost of 5 or less then draw 1. If it was a Dementor, draw 2.",
     "image": "cards/transfiguration/transf_patronus.png"
+  },
+  "Time Turner": {
+    "type": "Item",
+    "domain": "Potions",
+    "cost": 6,
+    "effect": "Once per turn, you may discard 3 cards from your hand to take 1 additional Action.",
+    "image": "cards/potions/potions_time.png"
+  },
+  "Portkey": {
+    "type": "Item",
+    "domain": "Potions",
+    "cost": 3,
+    "effect": "Once per turn, you may shuffle a card from your hand to draw 1.",
+    "image": "cards/potions/potions_portkey.png"
   }
 }
