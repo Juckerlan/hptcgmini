@@ -453,7 +453,7 @@
     "domain": "Charms",
     "cost": 4,
     "effect": "Countdown 2: Your opponent cannot target you with cards they control.",
-    "image": "cards/charms/charm_wingardium.png"
+    "image": "cards/charms/charm_nebulus.png"
   },
   "Protego Totalum": {
     "type": "Spell",
