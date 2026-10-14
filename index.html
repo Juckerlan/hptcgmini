@@ -208,11 +208,11 @@
   border-image-repeat:stretch;
 }
 /* Main framed table areas: leave cards and overlays untextured. */
-#game .player{border-width:4px; background-image:url("backgrounds/blue_back.jpg");background-position:center;background-size:cover}
+#game .player{border-width:4px;background-image:none;background-color:transparent}
 #game .zone{border-width:7px;background-image:url("backgrounds/blue_back.jpg");background-position:center;background-size:cover}
 #game .pile{border-width:5px;background-image:url("backgrounds/blue_back.jpg");background-position:center;background-size:cover}
 #game .char{border-width:3px;background-image:url("backgrounds/blue_back.jpg");background-position:center;background-size:cover}
-#game .hand{border-width:4px;background-image:url("backgrounds/blue_back.jpg");background-position:center;background-size:cover}
+#game .hand{border-width:4px;background-image:none;background-color:transparent}
 /* Keep the decorative border visible when the active player is highlighted. */
 #game .player.active{box-shadow:inset 0 0 0 2px #8ab4ff40}
 </style></head><body><audio id="gameplayBackgroundMusic" src="backgrounds/back_music.mp3" preload="none" loop playsinline></audio><div id="home" class="home"><img class="landingSnitch" src="backgrounds/snitch.gif" alt="" aria-hidden="true" onerror="this.style.display='none'"><div class="homeBox"><h1 class="homeTitle"><img src="backgrounds/hpmini_title.png" alt="Pocket TCG Simulator" onerror="this.style.display='none';this.parentNode.appendChild(document.createTextNode('Pocket TCG Simulator'))"></h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
