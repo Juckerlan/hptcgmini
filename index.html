@@ -194,7 +194,7 @@
 .lookRevealItem img{width:100%;max-height:270px;object-fit:contain;border-radius:8px}
 .lookRevealItem strong{display:block;margin:6px 0}
 .lookRevealItem p{margin:4px 0;color:#e2d8c6;line-height:1.4}
-</style></head><body><div id="home" class="home"><img class="landingSnitch" src="backgrounds/snitch.gif" alt="" aria-hidden="true" onerror="this.style.display='none'"><div class="homeBox"><h1 class="homeTitle"><img src="backgrounds/hpmini_title.png" alt="Pocket TCG Simulator" onerror="this.style.display='none';this.parentNode.appendChild(document.createTextNode('Pocket TCG Simulator'))"></h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
+</style></head><body><audio id="gameplayBackgroundMusic" src="backgrounds/back_music.mp3" preload="none" loop playsinline></audio><div id="home" class="home"><img class="landingSnitch" src="backgrounds/snitch.gif" alt="" aria-hidden="true" onerror="this.style.display='none'"><div class="homeBox"><h1 class="homeTitle"><img src="backgrounds/hpmini_title.png" alt="Pocket TCG Simulator" onerror="this.style.display='none';this.parentNode.appendChild(document.createTextNode('Pocket TCG Simulator'))"></h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
 <div class="rulesBar"><h2>📖 Official Game Guide</h2><span style="flex:1"></span><button onclick="showHome()">← Back to Menu</button></div>
 <div class="rulesLayout"><nav class="rulesNav" aria-label="Rulebook sections">
 <a href="#rules-overview">Overview</a><a href="#rules-decks">Deck Building</a><a href="#rules-setup">Setup & Mulligan</a><a href="#rules-turn">Turn Structure</a><a href="#rules-actions">Actions & Lessons</a><a href="#rules-cards">Card Types</a><a href="#rules-spells">Spell Chains</a><a href="#rules-creatures">Creatures & Damage</a><a href="#rules-keywords">Keywords</a><a href="#rules-tokens">Tokens</a><a href="#rules-online">Online & Local Play</a><a href="#rules-reference">Quick Reference</a>
@@ -925,4 +925,23 @@ updateDeckLoadUI();renderDeckList();
  window.addEventListener('resize',()=>{if(interactive){const r=snitch.getBoundingClientRect();move(r.left,r.top)}},{passive:true});
 })();
 
+
+// V1.87: quiet, looping background music only while the gameplay screen is visible.
+const gameplayBackgroundMusic=document.getElementById('gameplayBackgroundMusic');
+gameplayBackgroundMusic.volume=0.09;
+function syncGameplayMusic(){
+ const game=document.getElementById('game');
+ const shouldPlay=!!game&&!game.classList.contains('screenHidden');
+ if(!shouldPlay){gameplayBackgroundMusic.pause();return;}
+ if(gameplayBackgroundMusic.paused){
+  const attempt=gameplayBackgroundMusic.play();
+  if(attempt&&typeof attempt.catch==='function')attempt.catch(()=>{});
+ }
+}
+// Watch screen transitions, including online room state updates.
+const gameplayMusicObserver=new MutationObserver(syncGameplayMusic);
+gameplayMusicObserver.observe(document.getElementById('game'),{attributes:true,attributeFilter:['class']});
+// Browsers may block audio until the user interacts with the page.
+document.addEventListener('pointerdown',()=>{if(gameplayBackgroundMusic.paused)syncGameplayMusic();},{passive:true});
+document.addEventListener('keydown',()=>{if(gameplayBackgroundMusic.paused)syncGameplayMusic();});
 </script></body></html>
