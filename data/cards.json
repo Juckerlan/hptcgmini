@@ -568,5 +568,12 @@
     "cost": 6,
     "effect": "Additional Cost: Discard 1 Lesson: Choose a Creature or Ally. You gain control of it for as long as Imperio remains in play.",
     "image": "cards/dark/dark_imperio.png"
+  },
+  "Vanishing Cabinet": {
+    "type": "Item",
+    "domain": "Dark Arts",
+    "cost": 3,
+    "effect": "When this enters play or is discarded, draw 1 card.",
+    "image": "cards/dark/dark_cabinet.png"
   }
 }
