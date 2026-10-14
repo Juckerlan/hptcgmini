@@ -540,5 +540,33 @@
     "cost": 3,
     "effect": "Freeze an Ally as long as this Spell is in play.",
     "image": "cards/charms/charm_riddikulus.png"
+  },
+  "Obscurus": {
+    "type": "Dark Spell",
+    "domain": "Dark Arts",
+    "cost": 5,
+    "effect": "Additional Cost — Discard your hand: Draw 3 cards. Deal 1 damage to your opponent for each card discarded this way, up to 5 damage.",
+    "image": "cards/dark/dark_obscurus.png"
+  },
+  "Sectumsempra": {
+    "type": "Dark Spell",
+    "domain": "Dark Arts",
+    "cost": 4,
+    "effect": "Deal 3 damage to a target. If that target has already been dealt damage this turn, deal 3 additional damage to it. Your opponent cannot restore health next turn.",
+    "image": "cards/dark/dark_sectumsempra.png"
+  },
+  "Death Eater": {
+    "type": "Ally",
+    "domain": "Dark Arts",
+    "cost": 5,
+    "effect": "Once per turn, look at the top 3 cards of your deck. If you find a Dark Spell, you may play it for 2 fewer Lessons. Shuffle the remaining cards.",
+    "image": "cards/dark/dark_deatheater.png"
+  },
+  "Imperio": {
+    "type": "Dark Spell",
+    "domain": "Dark Arts",
+    "cost": 6,
+    "effect": "Additional Cost: Discard 1 Lesson: Choose a Creature or Ally. You gain control of it for as long as Imperio remains in play.",
+    "image": "cards/dark/dark_imperio.png"
   }
 }
