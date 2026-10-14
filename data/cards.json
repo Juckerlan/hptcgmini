@@ -526,5 +526,12 @@
     "cost": 5,
     "effect": "Countdown 1: Look at the top 3 cards of your deck. You may choose a Spell and play it for no cost.",
     "image": "cards/potions/potinos_felix.png"
+  },
+  "Arrow Shooting Spell": {
+    "type": "Ongoing Spell",
+    "domain": "Transfiguration",
+    "cost": 3,
+    "effect": "Countdown 1: Choose one: Deal 2 damage to a Player; or destroy a Creature with a Cost of 3 or less.",
+    "image": "cards/transfiguration/transf_arrow.png"
   }
 }
