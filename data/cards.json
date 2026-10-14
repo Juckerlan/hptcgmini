@@ -533,5 +533,12 @@
     "cost": 3,
     "effect": "Countdown 1: Choose one: Deal 2 damage to a Player; or destroy a Creature with a Cost of 3 or less.",
     "image": "cards/transfiguration/transf_arrow.png"
+  },
+  "Riddikulus": {
+    "type": "Ongoing Spell",
+    "domain": "Charms",
+    "cost": 3,
+    "effect": "Freeze an Ally as long as this Spell is in play.",
+    "image": "cards/charms/charm_riddikulus.png"
   }
 }
