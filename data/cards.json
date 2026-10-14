@@ -371,11 +371,11 @@
     "effect": "Once per turn, you may discard a card from your hand to draw a Lesson.",
     "image": "cards/potions/potinos_memoryvial.png"
   },
-  "Weasley Firework Box": {
+  "Weasley Fireworks": {
     "type": "Item",
     "domain": "Potions",
-    "cost": 4,
-    "effect": "All the creatures your control deal 1 aditional damage.",
+    "cost": 2,
+    "effect": "Once per turn, deal 1 damage to a Creature.",
     "image": "cards/potions/potinos_wealeyfireworks.png"
   },
   "Stone Guardian": {
@@ -489,5 +489,35 @@
     "cost": 3,
     "effect": "Once per turn, you may shuffle a card from your hand to draw 1.",
     "image": "cards/potions/potions_portkey.png"
+  },
+  "Chomping Cabbage": {
+    "type": "Creature",
+    "domain": "Potions",
+    "cost": 3,
+    "health": 3,
+    "damage": 2,
+    "effect": "The first time you play a Potion each turn, Chomping Cabbage gets 1 additional damage.",
+    "image": "cards/potions/potinos_cabbage.png"
+  },
+  "Weasley Bomb Box": {
+    "type": "Item",
+    "domain": "Potions",
+    "cost": 4,
+    "effect": "All Creatures you control deal 1 additional damage.",
+    "image": "cards/potions/potinos_weasleybombs.png"
+  },
+  "Swelling Solution": {
+    "type": "Potion",
+    "domain": "Potions",
+    "cost": 2,
+    "effect": "Countdown 2: Your Creatures and Basic Casts deal 1 additional damage.",
+    "image": "cards/potions/potinos_swelling.png"
+  },
+  "Felix Felicis": {
+    "type": "Potion",
+    "domain": "Potions",
+    "cost": 5,
+    "effect": "Countdown 1: Look at the top 3 cards of your deck. You may choose a Spell and play it for no cost.",
+    "image": "cards/potions/potinos_felix.png"
   }
 }
