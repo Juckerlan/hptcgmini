@@ -1,4 +1,11 @@
 {
+  "Draco Malfoy": {
+    "type": "Ally",
+    "domain": "Neutral",
+    "cost": 0,
+    "effect": "Once per turn, you may discard a card. If you do, look at your opponent's hand and discard a card.",
+    "image": "cards/allies/char_draco.png"
+  },
   "Harry Potter": {
     "type": "Ally",
     "domain": "Neutral",
@@ -38,7 +45,7 @@
     "type": "Ally",
     "domain": "Neutral",
     "cost": 0,
-    "effect": "Once per turn, you may discard 2 Lessons to destroy a Spell targeting you.",
+    "effect": "Once per turn, you may discard 1 Lesson to destroy a Spell targeting you.",
     "image": "cards/allies/char_dobby.png"
   },
   "Aquamenti": {
