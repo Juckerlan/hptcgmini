@@ -607,5 +607,12 @@
     "effect": "",
     "image": "cards/tokens/token_wildboar.png",
     "token": true
+  },
+  "Horrocrux": {
+    "type": "Item",
+    "domain": "Dark Arts",
+    "cost": 6,
+    "effect": "Additional Cost — Sacrifice a Creature or Ally you control. Your opponent cannot win the game while your Health is 0 or less as long as this Item remains in play. Your opponent must destroy this Item to win the game.",
+    "image": "cards/dark/dark_horrocrux.png"
   }
 }
