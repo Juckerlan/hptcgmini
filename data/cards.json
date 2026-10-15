@@ -3,7 +3,7 @@
     "type": "Ally",
     "domain": "Neutral",
     "cost": 0,
-    "effect": "Once per turn, you may discard a card. If you do, look at your opponent's hand and discard a card.",
+    "effect": "Once per turn, spend an action to discard a card. If you do, look at your opponent's hand and discard a card.",
     "image": "cards/allies/char_draco.png"
   },
   "Harry Potter": {
