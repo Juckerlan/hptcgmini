@@ -669,6 +669,14 @@ function startGameFromLobby(){if(lobbyMode==='invite'){
 function showRules(){for(const id of ['home','builder','database','lobby','game'])document.getElementById(id).classList.add('screenHidden');document.getElementById('rules').classList.remove('screenHidden');document.querySelector('.rulesContent').scrollTop=0;}
 function showPlay(){document.getElementById('rules').classList.add('screenHidden');document.getElementById('home').classList.add('screenHidden');document.getElementById('builder').classList.add('screenHidden');document.getElementById('database').classList.add('screenHidden');document.getElementById('game').classList.add('screenHidden');document.getElementById('lobby').classList.remove('screenHidden');openLobby();}
 function showDatabase(){document.getElementById('rules').classList.add('screenHidden');document.getElementById('home').classList.add('screenHidden');document.getElementById('builder').classList.add('screenHidden');document.getElementById('lobby').classList.add('screenHidden');document.getElementById('game').classList.add('screenHidden');document.getElementById('database').classList.remove('screenHidden');renderDatabase();document.querySelector('#database .databaseBody').scrollTop=0;}
+// Shared catalog order: domain first, then ascending Lesson cost, then card name.
+const CARD_DOMAIN_ORDER=['Charms','Transfiguration','Quidditch','Potions','Dark Arts','Neutral','Token'];
+function compareCatalogCards(a,b){
+ const ca=CARD_DB[a],cb=CARD_DB[b];
+ const da=CARD_DOMAIN_ORDER.indexOf(ca.domain||'Neutral'),db=CARD_DOMAIN_ORDER.indexOf(cb.domain||'Neutral');
+ const ia=da<0?CARD_DOMAIN_ORDER.length:da,ib=db<0?CARD_DOMAIN_ORDER.length:db;
+ return ia-ib||Number(ca.cost??0)-Number(cb.cost??0)||a.localeCompare(b);
+}
 function renderDatabase(){
  let grid=document.getElementById('databaseGrid');if(!grid)return;
  let q=(document.getElementById('dbSearch').value||'').toLowerCase().trim();
@@ -678,7 +686,7 @@ function renderDatabase(){
  ts.innerHTML='<option value="">All Types</option>'+types.map(t=>'<option>'+t+'</option>').join('');
  ts.value=types.includes(old)?old:'';
  let entries=Object.entries(CARD_DB).filter(([n,c])=>!q||n.toLowerCase().includes(q)||c.type.toLowerCase().includes(q)||(c.domain||'').toLowerCase().includes(q)||(c.effect||'').toLowerCase().includes(q))
- .filter(([n,c])=>!dom||(c.domain||'Neutral')===dom).filter(([n,c])=>!type||c.type===type);
+ .filter(([n,c])=>!dom||(c.domain||'Neutral')===dom).filter(([n,c])=>!type||c.type===type).sort((a,b)=>compareCatalogCards(a[0],b[0]));
  grid.innerHTML='';
  entries.forEach(([n,c])=>{
   let el=document.createElement('button');el.type='button';el.className='dbCard';el.style.textAlign='left';el.style.cursor='pointer';
@@ -785,7 +793,7 @@ function renderBuilderCards(){
  let domains=getDeckDomains(builderDeck),info=document.getElementById('builderDomainInfo');
  info.innerHTML='<b>Domains: </b>'+(domains.length?domains.map(d=>'<span class="domainPill active">'+d+'</span>').join(' '):'<span class="dbNote">No domain selected yet — the first domain you add defines the deck.</span>')+'<div class="builderDomainInfo '+(domains.length>=2?'warn':'')+'">'+(domains.length>=2?'Maximum 2 domains reached. Only Neutral cards and cards from your chosen domains are available.':'You may combine up to 2 domains. Potions &amp; Items count as one domain.')+'</div>';
  box.innerHTML='';
- cardNames().filter(n=>CARD_DB[n].type!=='Lesson'&&!CARD_DB[n].token).filter(n=>cardAllowedInDeck(n)).filter(n=>!q||n.toLowerCase().includes(q)||CARD_DB[n].type.toLowerCase().includes(q)||(CARD_DB[n].domain||'').toLowerCase().includes(q)||(CARD_DB[n].effect||'').toLowerCase().includes(q)).forEach(n=>{
+ cardNames().filter(n=>CARD_DB[n].type!=='Lesson'&&!CARD_DB[n].token).filter(n=>cardAllowedInDeck(n)).filter(n=>!q||n.toLowerCase().includes(q)||CARD_DB[n].type.toLowerCase().includes(q)||(CARD_DB[n].domain||'').toLowerCase().includes(q)||(CARD_DB[n].effect||'').toLowerCase().includes(q)).sort(compareCatalogCards).forEach(n=>{
   const c=CARD_DB[n];let row=document.createElement('div');row.className='bcard bcardVisual';
   let preview=document.createElement('button');preview.type='button';preview.className='builderArtButton';preview.title='View '+n+' details';preview.setAttribute('aria-label','View '+n+' details');preview.onclick=()=>openCardDetail(n,c);
   if(c.image){let img=document.createElement('img');img.src=c.image;img.alt=n;img.loading='lazy';img.onerror=()=>{img.style.display='none';fallback.style.display='flex'};preview.appendChild(img)}
