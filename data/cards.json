@@ -575,5 +575,37 @@
     "cost": 3,
     "effect": "When this enters play or is discarded, draw 1 card.",
     "image": "cards/dark/dark_cabinet.png"
+  },
+  "Enchanted Candy": {
+    "type": "Item",
+    "domain": "Potions",
+    "cost": 2,
+    "effect": "The first Spell you play each turn deals 2 additional damage.",
+    "image": "cards/potions/potinos_candy.png"
+  },
+  "Impedimenta": {
+    "type": "Ongoing Spell",
+    "domain": "Charms",
+    "cost": 3,
+    "effect": "Countdown 1: Your opponent has 1 fewer Action during their next turn.",
+    "image": "cards/charms/charm_impedimenta.png"
+  },
+  "Homorphus": {
+    "type": "Spell",
+    "domain": "Transfiguration",
+    "cost": 4,
+    "effect": "Replace a Creature or Ally with a Wild Boar Token.",
+    "image": "cards/transfiguration/transf_homorphus.png"
+  },
+  "Wild Boar": {
+    "type": "Creature",
+    "domain": "Neutral",
+    "cost": 0,
+    "health": 1,
+    "life": 1,
+    "damage": 1,
+    "effect": "",
+    "image": "cards/tokens/token_wildboar.png",
+    "token": true
   }
 }
