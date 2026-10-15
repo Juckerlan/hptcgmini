@@ -614,5 +614,12 @@
     "cost": 6,
     "effect": "Additional Cost — Sacrifice a Creature or Ally you control. Your opponent cannot win the game while your Health is 0 or less as long as this Item remains in play. Your opponent must destroy this Item to win the game.",
     "image": "cards/dark/dark_horrocrux.png"
+  },
+  "Finite Incantatem": {
+    "type": "Ongoing Spell",
+    "domain": "Charms",
+    "cost": 4,
+    "effect": "Countdown 1: Destroy all Ongoing Spells and Dark Spells your opponent controls. Your opponent must discard a card to play a Lesson.",
+    "image": "cards/charms/charm_finite.png"
   }
 }
