@@ -241,34 +241,6 @@
 #game.view2 .player.p2 .center .hand{grid-row:3}
 #game.view2 .player.p2 .center .zone.lessons{grid-row:2}
 #game.view2 .player.p2 .center .zone.play{grid-row:1}
-
-/* V1.120 — Hogwarts courtyard artwork; gameplay geometry remains unchanged.
-   Put the user-provided image at backgrounds/back_gameplay.png. */
-#game .table{
-  background-image:url("backgrounds/back_gameplay.png");
-  background-position:center center;
-  background-repeat:no-repeat;
-  background-size:100% 100%;
-  background-color:#252932;
-}
-/* The image already contains the central ornamental separator. */
-#game .table::after{display:none}
-/* Preserve unobstructed artwork beneath the active game zones. */
-#game .player .center .zone{
-  background:transparent!important;
-  border-color:#dbc99a45;
-}
-#game .player .center .hand{
-  background:#0d142029;
-  border-color:#d7c3973d;
-}
-#game .player .head{
-  background:#10162260;
-  border-color:#c7a76a70;
-}
-#game .player .pile{
-  background-color:#131923b3;
-}
 </style>
 <style id="startingAllyStatusStyles">
 .char{overflow:visible}
@@ -408,38 +380,7 @@
 }
 #game .player .pileWrap{justify-content:center;align-items:center;align-self:center;min-height:0}
 #game .player .pile{flex-shrink:1}
-
-/* V1.121 — Restore the Hogwarts board image after all legacy background rules.
-   Keep geometry, responsive sizing, hitboxes, and online orientation unchanged. */
-#game .table{
-  background-color:#252932;
-  background-image:url("backgrounds/back_gameplay.png")!important;
-  background-position:center center!important;
-  background-size:100% 100%!important;
-  background-repeat:no-repeat!important;
-}
-#game .table::after{display:none!important}
-/* Old blue_back.jpg textures were hiding the illustration in every play zone. */
-#game .player .center .zone,
-#game .player .center .zone.play,
-#game .player .center .zone.lessons{
-  background:none!important;
-  background-color:transparent!important;
-  background-image:none!important;
-  border:1px solid #e0cb9b36!important;
-  border-image:none!important;
-}
-#game .player .center .hand{
-  background-image:none!important;
-  background-color:#10172224!important;
-  border-color:#d6c69d35!important;
-}
-#game .player .head{
-  background-image:none!important;
-  background-color:#11182430!important;
-}
-#game .player{background-image:none!important;background-color:transparent!important}
-</style></head><body><audio id="gameplayBackgroundMusic" src="backgrounds/back_music.mp3" preload="none" loop playsinline></audio><div id="home" class="home"><img class="landingSnitch" src="backgrounds/snitch.gif" alt="" aria-hidden="true" onerror="this.style.display='none'"><div class="homeBox"><h1 class="homeTitle"><img src="backgrounds/hpmini_title.png" alt="Pocket TCG Simulator" onerror="this.style.display='none';this.parentNode.appendChild(document.createTextNode('Pocket TCG Simulator'))"></h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div><div class="landingVersion">Pocket Magic Awakened · v1.121</div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
+</style></head><body><audio id="gameplayBackgroundMusic" src="backgrounds/back_music.mp3" preload="none" loop playsinline></audio><div id="home" class="home"><img class="landingSnitch" src="backgrounds/snitch.gif" alt="" aria-hidden="true" onerror="this.style.display='none'"><div class="homeBox"><h1 class="homeTitle"><img src="backgrounds/hpmini_title.png" alt="Pocket TCG Simulator" onerror="this.style.display='none';this.parentNode.appendChild(document.createTextNode('Pocket TCG Simulator'))"></h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div><div class="landingVersion">Pocket Magic Awakened · v1.122</div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
 <div class="rulesBar"><h2>📖 Official Game Guide</h2><span style="flex:1"></span><button onclick="showHome()">← Back to Menu</button></div>
 <div class="rulesLayout"><nav class="rulesNav" aria-label="Rulebook sections">
 <a href="#rules-overview">Overview</a><a href="#rules-decks">Deck Building</a><a href="#rules-setup">Setup & Mulligan</a><a href="#rules-turn">Turn Structure</a><a href="#rules-actions">Actions & Lessons</a><a href="#rules-cards">Card Types</a><a href="#rules-spells">Spell Chains</a><a href="#rules-creatures">Creatures & Damage</a><a href="#rules-keywords">Keywords</a><a href="#rules-tokens">Tokens</a><a href="#rules-online">Online & Local Play</a><a href="#rules-reference">Quick Reference</a>
