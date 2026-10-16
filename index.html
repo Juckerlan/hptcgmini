@@ -692,6 +692,7 @@ function onlinePublish(event='state'){if(lobbyMode!=='invite'||!onlineStarted||o
 function onlineQueuePublish(){if(lobbyMode!=='invite'||!onlineStarted||onlineApplying)return;clearTimeout(onlineSendTimer);onlineSendTimer=setTimeout(()=>onlinePublish('state'),80)}
 function onlineApplyState(state){if(!state||!state.P||!state.P[1]||!state.P[2])return;const incomingCastSerial=Number(state.basicCastEventSerial||0);basicCastEventSerial=Math.max(basicCastEventSerial,incomingCastSerial);if(incomingCastSerial>basicCastSeenSerial&&state.basicCastEventPlayer&&state.basicCastEventPlayer!==onlineRole){basicCastSeenSerial=incomingCastSerial;showBasicCastNotice(state.basicCastEventPlayer);}const sameGameState=JSON.stringify({P,phase,turn})===JSON.stringify({P:state.P,phase:state.phase,turn:state.turn});if(sameGameState){onlineRevision=Math.max(onlineRevision,state.revision||0);return;}if(pendingUndoOut){pendingUndoOut=null;toast('Undo cancelled: game state changed.');}let previousTurn=turn,wasStarted=onlineStarted;onlineApplying=true;P[1]=state.P[1];P[2]=state.P[2];phase=state.phase;turn=state.turn;id=Math.max(id,state.id||1);onlineRevision=Math.max(onlineRevision,state.revision||0);onlineStarted=true;commBaseline={P:JSON.parse(JSON.stringify(P)),turn};renderComm();viewPlayer=onlineRole;document.getElementById('game').classList.toggle('view2',onlineRole===2);document.getElementById('game').classList.remove('screenHidden');document.getElementById('lobby').classList.add('screenHidden');document.getElementById('switchSideBtn').style.display='none';document.getElementById('turnOrderModal').style.display='none';document.getElementById('modal').style.display='none';history=[];render();document.getElementById('status').textContent=playerLabel(turn)+' Turn • ONLINE';onlineApplying=false;if(phase==='onlineMull'){onlineMullSelection=[];onlineMullSubmitted=false;onlineMullReady={1:false,2:false};renderOnlineMull()}else{renderOnlineMull();if(!wasStarted||previousTurn!==turn)announceTurn(turn)}}
 function onlineReceive(msg){if(!msg||msg.role===onlineRole||lobbyMode!=='invite')return;
+ if(msg.event==='rematch'&&onlineConnected&&msg.role!==onlineRole){returnToOnlineLobby(false);toast('Your opponent is ready for another game. Choose your deck.');return;}
  if(msg.event==='look-reveal'&&onlineStarted&&msg.player===msg.role&&Array.isArray(msg.cards)&&msg.cards.length<=5&&msg.cards.every(c=>c&&typeof c.name==='string'&&CARD_DB[c.name])){showLookReveal(msg.player,msg.cards);return;}
  if(msg.event==='spell-chain'&&onlineStarted&&Array.isArray(msg.stack)&&msg.state){onlineApplyState(msg.state);spellChain=msg.stack;spellChainSerial=Math.max(spellChainSerial,...spellChain.map(s=>s.seq||0),0);renderSpellChain();return;}
  if(msg.event.startsWith('undo-')){receiveOnlineUndo(msg);return;}
@@ -1028,7 +1029,47 @@ function switchToWildBoar(p,cardId){
  render();toast(original.name+' replaced with Wild Boar Token.');
 }
 function spawnToken(p,name,count=1){if(!onlineCanPlay(p))return;if(phase!=='game'){toast('Start a game first.');return}let d=CARD_DB[name];if(!d||!d.token)return;pushHistory();for(let j=0;j<count;j++){let c=cardFromDB(name);c.isToken=true;c.life=d.health;positionNewPlayCard(p,c);P[p].play.push(c)}render();toast(count+' '+name+' token(s) created.')}function createLunaToken(p){if(!onlineCanPlay(p))return;if(P[p].char?.frozen){toast('Luna is Frozen and cannot use her ability.');return;}spawnToken(p,"Luna's Thestral",1)}
-function nextGame(){spellChainReset();resetUndoRequests();resetComm();if(lobbyMode==='invite'&&onlineStarted)onlineSend('leave');viewPlayer=1;document.getElementById('game').classList.remove('view2');history=[];phase='setup';turn=1;sel=null;selDeck=null;for(let p=1;p<3;p++)Object.assign(P[p],newP());document.getElementById('modal').style.display='none';document.getElementById('turnOrderModal').style.display='none';document.getElementById('deckModal').style.display='none';document.getElementById('menu').style.display='none';document.getElementById('deckMenu').style.display='none';document.getElementById('game').classList.add('screenHidden');document.getElementById('lobby').classList.remove('screenHidden');openLobby();toast('Next game: choose or confirm the decks.')}
+// A rematch keeps the existing Supabase room and both players connected.
+function returnToOnlineLobby(notifyOpponent){
+ if(lobbyMode!=='invite'||!onlineChannel||!onlineConnected)return false;
+ if(notifyOpponent)onlineSend('rematch');
+ clearTimeout(onlineSendTimer);
+ onlineStarted=false;
+ onlineApplying=false;
+ onlineGuestDeck=null;
+ onlineMullReady={1:false,2:false};onlineMullSubmitted=false;onlineMullSelection=[];
+ lobbyConfirmed={1:false,2:false};
+ lobbyJoined[onlineRole]=true;
+ spellChainReset();resetUndoRequests();resetComm();
+ history=[];phase='setup';turn=1;sel=null;selDeck=null;
+ for(let p=1;p<3;p++)Object.assign(P[p],newP());
+ for(const modal of ['modal','turnOrderModal','deckModal','onlineMullModal','menu','deckMenu']){
+  const el=document.getElementById(modal);if(el)el.style.display='none';
+ }
+ document.getElementById('game').classList.add('screenHidden');
+ document.getElementById('game').classList.remove('view2');
+ document.getElementById('lobby').classList.remove('screenHidden');
+ fillLobbyDecks();renderLobby();onlineTrack();
+ onlineStatus('Room '+onlineCode+' connected. Select and confirm your next deck.');
+ return true;
+}
+function nextGame(){
+ if(lobbyMode==='invite'){
+  if(!onlineConnected||!onlineChannel){toast('Online room disconnected. Return to Play to reconnect.');return;}
+  returnToOnlineLobby(true);
+  toast('Rematch lobby: both players can choose a new deck.');
+  return;
+ }
+ spellChainReset();resetUndoRequests();resetComm();viewPlayer=1;
+ document.getElementById('game').classList.remove('view2');history=[];phase='setup';turn=1;sel=null;selDeck=null;
+ for(let p=1;p<3;p++)Object.assign(P[p],newP());
+ for(const modal of ['modal','turnOrderModal','deckModal','menu','deckMenu']){
+  const el=document.getElementById(modal);if(el)el.style.display='none';
+ }
+ document.getElementById('game').classList.add('screenHidden');
+ document.getElementById('lobby').classList.remove('screenHidden');
+ openLobby();toast('Next game: choose or confirm the decks.');
+}
 function leaveGame(){spellChainReset();resetUndoRequests();resetComm();if(lobbyMode==='invite'&&onlineStarted)onlineSend('leave');viewPlayer=1;document.getElementById('game').classList.remove('view2');history=[];phase='setup';turn=1;sel=null;selDeck=null;for(let p=1;p<3;p++)Object.assign(P[p],newP());document.getElementById('modal').style.display='none';document.getElementById('turnOrderModal').style.display='none';document.getElementById('deckModal').style.display='none';document.getElementById('menu').style.display='none';document.getElementById('deckMenu').style.display='none';document.getElementById('game').classList.add('screenHidden');document.getElementById('lobby').classList.remove('screenHidden');openLobby();toast('You left the game.')}
 
 function resetGame(){resetUndoRequests();history=[];phase='setup';turn=1;sel=null;selDeck=null;for(let p=1;p<3;p++)Object.assign(P[p],newP());document.getElementById('modal').style.display='none';document.getElementById('turnOrderModal').style.display='none';document.getElementById('deckModal').style.display='none';document.getElementById('menu').style.display='none';document.getElementById('deckMenu').style.display='none';document.getElementById('game').classList.add('screenHidden');document.getElementById('lobby').classList.remove('screenHidden');openLobby();toast('Match reset. Return to the lobby.')}
