@@ -642,5 +642,40 @@
     "cost": 4,
     "effect": "When damage would be dealt to you or a Quidditch Creature you control, discard me to prevent that damage. When this card is discarded, draw 1.",
     "image": "cards/quidditch/quidd_firebolt.png"
+  },
+  "Crucio": {
+    "type": "Dark Spell",
+    "domain": "Dark Arts",
+    "cost": 5,
+    "effect": "Choose a target. It cannot attack. At the beginning of each of your turns, deal 3 damage to it. This effect lasts as long as Crucio remains in play.",
+    "image": "cards/dark/dark_crucio.png"
+  },
+  "Hot Air Charm": {
+    "type": "Spell",
+    "domain": "Charms",
+    "cost": 2,
+    "effect": "Remove all freeze status from all the cards in your board. Draw 1.",
+    "image": "cards/charms/charm_hot.png"
+  },
+  "Crystal Ball": {
+    "type": "Item",
+    "domain": "Potions",
+    "cost": 2,
+    "effect": "Once per turn, when a card leaves your discard pile, draw 1 card and deal 1 damage to any target.",
+    "image": "cards/potions/potinos_crystalball.png"
+  },
+  "Duel of the Seekers": {
+    "type": "Event",
+    "domain": "Quidditch",
+    "cost": 4,
+    "effect": "Draw 1 card. If you control a Golden Snitch, deal 3 damage to your opponent.",
+    "image": "cards/quidditch/quidd_duelofseeker.png"
+  },
+  "Gubridian Fire": {
+    "type": "Ongoing Spell",
+    "domain": "Transfiguration",
+    "cost": 5,
+    "effect": "Countdown 2: Deal 2 damage to all creatures.",
+    "image": "cards/transfiguration/transf_gubridian.png"
   }
 }
