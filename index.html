@@ -192,6 +192,41 @@
 @keyframes combatBarEntrance{from{opacity:0;translate:0 12px}to{opacity:1;translate:0 0}}
 @media(max-width:650px){#combatControlBar{bottom:10px;padding:13px 14px;flex-direction:column;gap:10px;text-align:center}#combatControlBar .combatNextBtn{width:100%;white-space:normal;padding:12px 14px}}
 .effectPointBtn{background:#37586a!important;color:#fff!important;border:1px solid #7ac9e3!important}.targetCandidate{outline:3px solid #f2b55e!important;outline-offset:2px;cursor:crosshair!important}
+
+/* V1.118 — Switch Side: use the viewer, not a fixed player number, to orient zones.
+   Stronger selectors override legacy view2 rules for both seats. */
+#game.view2 .player.opponent{
+  grid-template-rows:minmax(0,30fr) minmax(0,28fr) minmax(0,42fr);
+}
+#game.view2 .player:not(.opponent){
+  grid-template-rows:minmax(0,42fr) minmax(0,28fr) minmax(0,30fr);
+}
+#game.view2 .player.opponent .center{
+  grid-template-rows:minmax(0,30fr) minmax(0,28fr) minmax(0,42fr);
+}
+#game.view2 .player:not(.opponent) .center{
+  grid-template-rows:minmax(0,42fr) minmax(0,28fr) minmax(0,30fr);
+}
+#game.view2 .player.opponent .center .hand{grid-row:1}
+#game.view2 .player.opponent .center .zone.lessons{grid-row:2}
+#game.view2 .player.opponent .center .zone.play{grid-row:3}
+#game.view2 .player:not(.opponent) .center .hand{grid-row:3}
+#game.view2 .player:not(.opponent) .center .zone.lessons{grid-row:2}
+#game.view2 .player:not(.opponent) .center .zone.play{grid-row:1}
+#game.view2 .player.opponent .center .zone.play,
+#game.view2 .player.opponent .center .zone.lessons,
+#game.view2 .player.opponent .center .hand .card{rotate:180deg}
+#game.view2 .player:not(.opponent) .center .zone.play,
+#game.view2 .player:not(.opponent) .center .zone.lessons,
+#game.view2 .player:not(.opponent) .center .hand .card{rotate:0deg}
+#game.view2 .player.opponent .center .zone .label{rotate:180deg;left:auto;right:8px}
+#game.view2 .player:not(.opponent) .center .zone .label{rotate:0deg;left:8px;right:auto}
+#game.view2 .player.opponent .pileRow:first-child .pileWrap:first-child,
+#game.view2 .player.opponent .pileRow:last-child .pileWrap:first-child{grid-row:3}
+#game.view2 .player:not(.opponent) .pileRow:first-child .pileWrap:first-child,
+#game.view2 .player:not(.opponent) .pileRow:last-child .pileWrap:first-child{grid-row:1}
+#game.view2 .player .pileRow:first-child .pileWrap:last-child,
+#game.view2 .player .pileRow:last-child .pileWrap:last-child{grid-row:2}
 </style>
 <style id="startingAllyStatusStyles">
 .char{overflow:visible}
@@ -331,7 +366,7 @@
 }
 #game .player .pileWrap{justify-content:center;align-items:center;align-self:center;min-height:0}
 #game .player .pile{flex-shrink:1}
-</style></head><body><audio id="gameplayBackgroundMusic" src="backgrounds/back_music.mp3" preload="none" loop playsinline></audio><div id="home" class="home"><img class="landingSnitch" src="backgrounds/snitch.gif" alt="" aria-hidden="true" onerror="this.style.display='none'"><div class="homeBox"><h1 class="homeTitle"><img src="backgrounds/hpmini_title.png" alt="Pocket TCG Simulator" onerror="this.style.display='none';this.parentNode.appendChild(document.createTextNode('Pocket TCG Simulator'))"></h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div><div class="landingVersion">Pocket Magic Awakened · v1.117</div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
+</style></head><body><audio id="gameplayBackgroundMusic" src="backgrounds/back_music.mp3" preload="none" loop playsinline></audio><div id="home" class="home"><img class="landingSnitch" src="backgrounds/snitch.gif" alt="" aria-hidden="true" onerror="this.style.display='none'"><div class="homeBox"><h1 class="homeTitle"><img src="backgrounds/hpmini_title.png" alt="Pocket TCG Simulator" onerror="this.style.display='none';this.parentNode.appendChild(document.createTextNode('Pocket TCG Simulator'))"></h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div><div class="landingVersion">Pocket Magic Awakened · v1.118</div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
 <div class="rulesBar"><h2>📖 Official Game Guide</h2><span style="flex:1"></span><button onclick="showHome()">← Back to Menu</button></div>
 <div class="rulesLayout"><nav class="rulesNav" aria-label="Rulebook sections">
 <a href="#rules-overview">Overview</a><a href="#rules-decks">Deck Building</a><a href="#rules-setup">Setup & Mulligan</a><a href="#rules-turn">Turn Structure</a><a href="#rules-actions">Actions & Lessons</a><a href="#rules-cards">Card Types</a><a href="#rules-spells">Spell Chains</a><a href="#rules-creatures">Creatures & Damage</a><a href="#rules-keywords">Keywords</a><a href="#rules-tokens">Tokens</a><a href="#rules-online">Online & Local Play</a><a href="#rules-reference">Quick Reference</a>
@@ -1184,7 +1219,7 @@ function battlefieldDropIndex(zone,p,clientX,clientY){
  return Math.min(P[p].play.length-1,row*cols+col);
 }
 function renderDiscardTop(p,zone,card){let box=document.getElementById(zone+p);if(!box)return;box.innerHTML='';if(!card)return;let img=document.createElement('img');img.className='discardTop';img.src=card.image||'';img.alt=card.name||'Last discarded card';box.appendChild(img)}
-function render(){renderCombatControls();if(lobbyMode==='local'&&phase==='game'){let current={P:JSON.parse(JSON.stringify(P)),turn};if(commBaseline){for(let p=1;p<=2;p++)for(let line of commActionDiff(commBaseline,current,p))appendComm('log',p,line);}commBaseline=current;}renderComm();let t=document.getElementById('table');t.innerHTML='';for(let p=1;p<3;p++){let s=P[p],q=document.createElement('section');q.className='player p'+p+(p===2?' opponent ':' ')+(phase=='game'&&turn==p?'active':'');q.innerHTML='<div class="head"><span class="badge '+(phase=='game'&&turn==p?'on':'')+'">PLAYER '+p+'</span><div class="char" title="Starting Ally — right-click for Frozen / Shield">'+(s.char&&s.char.image?'<img src="'+s.char.image+'" alt="'+s.char.name+'"><span>'+s.char.name+'</span>':'★ '+(s.char?s.char.name:'STARTING CHARACTER'))+'</div>'+(s.char?.name==='Luna Lovegood'&&!s.char.frozen&&phase==='game'&&onlineOwns(p)?'<button onclick="createLunaToken('+p+')" title="Resolve the Lesson cost manually">+ Thestral</button>':'')+'<div class="playerLife"><button onclick="changePlayerLife('+p+',-1)">−</button><strong>♥ <span class="lifeValue">'+s.life+'</span></strong><button onclick="changePlayerLife('+p+',1)">+</button></div><div class="playerActions"><strong class="actionStatus">⚡ '+(s.actionsLeft??2)+' / 2 Actions</strong><button onclick="basicCast('+p+')" '+((phase!=='game'||p!==turn||(lobbyMode==='invite'&&onlineStarted&&p!==onlineRole))?'disabled':'')+' title="Spend 1 Action; apply Basic Cast damage manually">Basic Cast</button></div><span style="color:#929baa;font-size:11px">Main: '+s.main.length+' • Lessons: '+s.lessonDeck.length+'</span></div><div class="piles"><div class="pileRow"><div class="pileWrap"><div class="pile" id="main'+p+'"><img class="pileBack" src="'+BACKS.main+'"></div><div class="pileLabel">MAIN DECK<small>'+s.main.length+' cards</small></div></div><div class="pileWrap"><div class="pile lesson" id="lesson'+p+'"><img class="pileBack" src="'+BACKS.lesson+'"></div><div class="pileLabel">LESSON DECK<small>'+s.lessonDeck.length+' cards</small></div></div></div><div class="pileRow"><div class="pileWrap"><div class="pile" id="discard'+p+'"></div><div class="pileLabel">DISCARD<small>'+s.discard.length+' cards • Exiled: '+(s.exile||[]).length+'</small></div></div><div class="pileWrap"><div class="pile" id="ldiscard'+p+'"></div><div class="pileLabel">LESSON DISCARD<small>'+s.lessonDiscard.length+' cards</small></div></div></div></div><div class="center"><div class="zone play" id="play'+p+'"><span class="label">PLAY AREA — AUTO ARRANGE • DRAG TO MOVE</span></div><div class="zone lessons" id="lessons'+p+'"><span class="label">LESSON AREA</span></div><div class="hand" id="hand'+p+'"></div></div>';t.appendChild(q);renderDiscardTop(p,'discard',s.discard[s.discard.length-1]);renderDiscardTop(p,'ldiscard',s.lessonDiscard[s.lessonDiscard.length-1]);let charEl=q.querySelector('.char');if(charEl&&s.char){
+function render(){renderCombatControls();if(lobbyMode==='local'&&phase==='game'){let current={P:JSON.parse(JSON.stringify(P)),turn};if(commBaseline){for(let p=1;p<=2;p++)for(let line of commActionDiff(commBaseline,current,p))appendComm('log',p,line);}commBaseline=current;}renderComm();let t=document.getElementById('table');t.innerHTML='';for(let p=1;p<3;p++){let s=P[p],q=document.createElement('section');q.className='player p'+p+(p!==viewPlayer?' opponent ':' ')+(phase=='game'&&turn==p?'active':'');q.innerHTML='<div class="head"><span class="badge '+(phase=='game'&&turn==p?'on':'')+'">PLAYER '+p+'</span><div class="char" title="Starting Ally — right-click for Frozen / Shield">'+(s.char&&s.char.image?'<img src="'+s.char.image+'" alt="'+s.char.name+'"><span>'+s.char.name+'</span>':'★ '+(s.char?s.char.name:'STARTING CHARACTER'))+'</div>'+(s.char?.name==='Luna Lovegood'&&!s.char.frozen&&phase==='game'&&onlineOwns(p)?'<button onclick="createLunaToken('+p+')" title="Resolve the Lesson cost manually">+ Thestral</button>':'')+'<div class="playerLife"><button onclick="changePlayerLife('+p+',-1)">−</button><strong>♥ <span class="lifeValue">'+s.life+'</span></strong><button onclick="changePlayerLife('+p+',1)">+</button></div><div class="playerActions"><strong class="actionStatus">⚡ '+(s.actionsLeft??2)+' / 2 Actions</strong><button onclick="basicCast('+p+')" '+((phase!=='game'||p!==turn||(lobbyMode==='invite'&&onlineStarted&&p!==onlineRole))?'disabled':'')+' title="Spend 1 Action; apply Basic Cast damage manually">Basic Cast</button></div><span style="color:#929baa;font-size:11px">Main: '+s.main.length+' • Lessons: '+s.lessonDeck.length+'</span></div><div class="piles"><div class="pileRow"><div class="pileWrap"><div class="pile" id="main'+p+'"><img class="pileBack" src="'+BACKS.main+'"></div><div class="pileLabel">MAIN DECK<small>'+s.main.length+' cards</small></div></div><div class="pileWrap"><div class="pile lesson" id="lesson'+p+'"><img class="pileBack" src="'+BACKS.lesson+'"></div><div class="pileLabel">LESSON DECK<small>'+s.lessonDeck.length+' cards</small></div></div></div><div class="pileRow"><div class="pileWrap"><div class="pile" id="discard'+p+'"></div><div class="pileLabel">DISCARD<small>'+s.discard.length+' cards • Exiled: '+(s.exile||[]).length+'</small></div></div><div class="pileWrap"><div class="pile" id="ldiscard'+p+'"></div><div class="pileLabel">LESSON DISCARD<small>'+s.lessonDiscard.length+' cards</small></div></div></div></div><div class="center"><div class="zone play" id="play'+p+'"><span class="label">PLAY AREA — AUTO ARRANGE • DRAG TO MOVE</span></div><div class="zone lessons" id="lessons'+p+'"><span class="label">LESSON AREA</span></div><div class="hand" id="hand'+p+'"></div></div>';t.appendChild(q);renderDiscardTop(p,'discard',s.discard[s.discard.length-1]);renderDiscardTop(p,'ldiscard',s.lessonDiscard[s.lessonDiscard.length-1]);let charEl=q.querySelector('.char');if(charEl&&s.char){
  charEl.onmouseenter=e=>showZoom(s.char,e);charEl.onmouseleave=hideZoom;
  const state=document.createElement('div');state.className='startingAllyStates';
  if(s.char.frozen){const tag=document.createElement('span');tag.className='frozen';tag.textContent='❄ Frozen';state.appendChild(tag)}
