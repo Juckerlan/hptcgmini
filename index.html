@@ -433,7 +433,66 @@
 /* Health +/- controls remain recognizable buttons. */
 #game .playerLife button { cursor: pointer !important; }
 </style>
-</head><body><div id="sideboardModal" style="display:none;position:fixed;inset:0;z-index:30000;background:rgba(5,10,24,.94);overflow:auto;padding:24px;color:#f2e6cb"><div style="max-width:960px;margin:auto;background:#14243a;border:2px solid #a98a54;border-radius:14px;padding:22px"><h2 id="sideboardTitle">Sideboard</h2><p id="sideboardHelp">Swap up to five cards. Choose a card from each column to exchange.</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:18px"><section><h3>Main Deck <span id="sideMainCount"></span></h3><div id="sideMainCards" style="max-height:55vh;overflow:auto"></div></section><section><h3>Sideboard <span id="sideReserveCount"></span></h3><div id="sideReserveCards" style="max-height:55vh;overflow:auto"></div></section></div><p id="sideboardStatus"></p><button id="sideboardConfirm" onclick="confirmSideboard()" style="padding:12px 24px;background:#ac8d54;color:#101827;font-weight:bold">Confirm Sideboard</button></div></div><audio id="gameplayBackgroundMusic" src="backgrounds/back_music.mp3" preload="none" loop playsinline></audio><div id="home" class="home"><img class="landingSnitch" src="backgrounds/snitch.gif" alt="" aria-hidden="true" onerror="this.style.display='none'"><div class="homeBox"><h1 class="homeTitle"><img src="backgrounds/hpmini_title.png" alt="Pocket TCG Simulator" onerror="this.style.display='none';this.parentNode.appendChild(document.createTextNode('Pocket TCG Simulator'))"></h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div><div class="landingVersion">Pocket Magic Awakened · v1.135</div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
+<style id="mobilePortraitV136">
+/* Mobile-only layout. Desktop styling remains untouched. */
+@media (max-width: 767px) and (orientation: portrait) {
+  #game{height:100dvh;overflow:hidden}
+  #game #bar{height:auto;min-height:46px;max-height:88px;padding:5px;gap:4px;flex-wrap:wrap;overflow-y:auto;align-content:center}
+  #game #bar b{font-size:10px;margin-right:2px}
+  #game #bar button{font-size:10px;padding:5px 7px;min-height:30px}
+  #game #status{font-size:10px;margin-left:0}
+  #game .table{height:calc(100dvh - 88px);min-height:0;display:grid;grid-template-rows:minmax(0,1fr) minmax(0,1fr);overflow:hidden}
+  #game .player,#game.view2 .player{min-height:0;min-width:0;display:grid;grid-template-columns:48px minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:3px;padding:3px;transform:none!important;overflow:hidden}
+  #game .player.opponent{order:1!important}
+  #game .player:not(.opponent){order:2!important}
+  #game .player .head{grid-column:1;grid-row:1;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:3px;min-width:0;overflow-y:auto;padding:2px}
+  #game .player .head .badge{font-size:9px;padding:2px}
+  #game .player .playerLife,#game .player.opponent .playerLife,#game.view2 .player .playerLife{transform:none!important;flex-wrap:wrap;justify-content:center;margin:0;gap:2px}
+  #game .player .playerLife strong{font-size:16px;min-width:0}
+  #game .player .playerLife button{font-size:10px;padding:3px 5px}
+  #game .player .char{width:38px;min-width:38px;height:52px}
+  #game .player .playerActions,#game .player.opponent .playerActions,#game.view2 .player .playerActions{transform:none!important;margin:0;flex-direction:column;gap:3px}
+  #game .player .playerActions button{font-size:9px;padding:4px}
+  #game .player .piles{grid-column:1;grid-row:1;align-self:end;display:grid;grid-template-rows:auto auto;gap:2px;max-height:34%;overflow:hidden}
+  #game .player .pileRow{gap:2px}
+  #game .player .pile{border-width:1px!important;border-image:none!important;border-radius:4px}
+  #game .player .pile img.pileBack{inset:2px;width:calc(100% - 4px);height:calc(100% - 4px)}
+  #game .player .pileLabel{font-size:7px;letter-spacing:0;min-height:12px}
+  #game .player .pileLabel small{display:none}
+  #game .player .center,#game.view2 .player .center{grid-column:2;grid-row:1;min-width:0;min-height:0;display:grid;gap:3px;grid-template-rows:minmax(0,43fr) minmax(0,25fr) minmax(0,32fr)!important}
+  #game .player.opponent .center .hand,#game.view2 .player.opponent .center .hand{grid-row:1!important}
+  #game .player.opponent .center .zone.lessons,#game.view2 .player.opponent .center .zone.lessons{grid-row:2!important}
+  #game .player.opponent .center .zone.play,#game.view2 .player.opponent .center .zone.play{grid-row:3!important}
+  #game .player:not(.opponent) .center .zone.play,#game.view2 .player:not(.opponent) .center .zone.play{grid-row:1!important}
+  #game .player:not(.opponent) .center .zone.lessons,#game.view2 .player:not(.opponent) .center .zone.lessons{grid-row:2!important}
+  #game .player:not(.opponent) .center .hand,#game.view2 .player:not(.opponent) .center .hand{grid-row:3!important}
+  #game .player .zone,#game .player .hand{min-width:0;min-height:0;border-width:2px!important}
+  #game .player .zone.play{overflow:auto;touch-action:pan-x pan-y}
+  #game .player .zone.lessons{padding:13px 4px 3px;gap:3px;overflow-x:auto}
+  #game .player .hand{grid-column:auto;justify-content:flex-start;align-items:center;padding:14px 4px 3px;gap:3px;overflow-x:auto;overflow-y:hidden}
+  #game .player .handTools{top:0;right:2px;gap:2px}
+  #game .player .handTools button{font-size:8px;padding:2px 4px}
+  #game .player .card{width:45px;height:62px;min-width:45px;flex-shrink:0}
+  #game .player .card:hover{transform:none}
+  #game .player .card .name{font-size:7px;padding:3px}
+  #game .player .card .cost{width:13px;height:13px;font-size:7px}
+  #game .player .card .counter,#game .player .card .life{font-size:8px;padding:1px 3px}
+  #game .player .zone .label{font-size:8px;top:2px;left:4px;right:auto;rotate:0!important}
+  #game .player.opponent .center .zone.play,#game .player.opponent .center .zone.lessons,#game .player.opponent .center .hand .card{rotate:0deg!important}
+  #game .player .center .zone.play,#game .player .center .zone.lessons{transform:none!important}
+  #game .modal,#game .menu{max-width:96vw}
+  .modal,#dbDetailModal{width:96vw!important;max-height:88dvh!important;overflow-y:auto}
+  .modal .mgrid{grid-template-columns:1fr}
+  #spellOverlay .spellPanel{width:96vw;max-height:85dvh;overflow-y:auto}
+  #combatControlBar{bottom:5px;width:calc(100vw - 10px);padding:7px 9px;gap:5px;flex-direction:row;text-align:left}
+  #combatControlBar .combatLabel{font-size:11px}
+  #combatControlBar .combatNextBtn{font-size:11px;padding:7px;width:auto}
+  #builder .builderBody{overflow-y:auto}
+  #builder .builderBar,#database .databaseBar{flex-wrap:wrap;height:auto}
+  #builder .builderBar button,#database .databaseBar button{font-size:10px;padding:5px}
+}
+</style>
+</head><body><div id="sideboardModal" style="display:none;position:fixed;inset:0;z-index:30000;background:rgba(5,10,24,.94);overflow:auto;padding:24px;color:#f2e6cb"><div style="max-width:960px;margin:auto;background:#14243a;border:2px solid #a98a54;border-radius:14px;padding:22px"><h2 id="sideboardTitle">Sideboard</h2><p id="sideboardHelp">Swap up to five cards. Choose a card from each column to exchange.</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:18px"><section><h3>Main Deck <span id="sideMainCount"></span></h3><div id="sideMainCards" style="max-height:55vh;overflow:auto"></div></section><section><h3>Sideboard <span id="sideReserveCount"></span></h3><div id="sideReserveCards" style="max-height:55vh;overflow:auto"></div></section></div><p id="sideboardStatus"></p><button id="sideboardConfirm" onclick="confirmSideboard()" style="padding:12px 24px;background:#ac8d54;color:#101827;font-weight:bold">Confirm Sideboard</button></div></div><audio id="gameplayBackgroundMusic" src="backgrounds/back_music.mp3" preload="none" loop playsinline></audio><div id="home" class="home"><img class="landingSnitch" src="backgrounds/snitch.gif" alt="" aria-hidden="true" onerror="this.style.display='none'"><div class="homeBox"><h1 class="homeTitle"><img src="backgrounds/hpmini_title.png" alt="Pocket TCG Simulator" onerror="this.style.display='none';this.parentNode.appendChild(document.createTextNode('Pocket TCG Simulator'))"></h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div><div class="landingVersion">Pocket Magic Awakened · v1.136</div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
 <div class="rulesBar"><h2>📖 Official Game Guide</h2><span style="flex:1"></span><button onclick="showHome()">← Back to Menu</button></div>
 <div class="rulesLayout"><nav class="rulesNav" aria-label="Rulebook sections">
 <a href="#rules-overview">Overview</a><a href="#rules-decks">Deck Building</a><a href="#rules-setup">Setup & Mulligan</a><a href="#rules-turn">Turn Structure</a><a href="#rules-actions">Actions & Lessons</a><a href="#rules-cards">Card Types</a><a href="#rules-spells">Spell Chains</a><a href="#rules-creatures">Creatures & Damage</a><a href="#rules-keywords">Keywords</a><a href="#rules-tokens">Tokens</a><a href="#rules-online">Online & Local Play</a><a href="#rules-reference">Quick Reference</a>
