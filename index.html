@@ -466,7 +466,7 @@ function installOpponentClick(el,p,c,z){
 }
 
 // V1.48: a spell waits for the opponent's response. Responses are resolved last-in-first-out.
-let spellChain=[],spellChainSerial=0;
+let spellChain=[],spellChainSerial=0, pendingSpellEffect=null;
 function isSpellCard(c){return !!c&&/spell/i.test(c.type||'')}
 function isQuickSpell(c){return !!c&&/quick\s*spell/i.test(c.type||'')}
 // Ongoing Spells remain through the casting turn plus their printed Countdown turns.
@@ -539,7 +539,7 @@ function basicCast(player){
  render();toast('Basic Cast: 1 Action spent.');
 }
 function spellChainActive(){return phase==='game'&&spellChain.length>0&&(lobbyMode==='local'||(lobbyMode==='invite'&&onlineStarted))}
-function spellChainReset(){spellChain=[];spellChainSerial=0;renderSpellChain()}
+function spellChainReset(){spellChain=[];spellChainSerial=0;pendingSpellEffect=null;renderSpellChain()}
 // Dark Arts: every Dark Arts card may be played once from Discard at +1 Lesson; exile afterward.
 // Printed additional costs on individual cards still apply. Lessons are paid manually in this simulator.
 function darkArtsCard(c){return CARD_DB[c?.name]?.domain==='Dark Arts';}
@@ -602,23 +602,36 @@ function castDarkFromDiscard(p,cardId){
 function spellChainCast(p,cardId,quick=false){
  if(phase!=='game'||(lobbyMode==='invite'&&(!onlineStarted||!onlineConnected||p!==onlineRole)))return false;
  const f=locate(p,cardId);if(!f||f.a!==P[p].hand||!isSpellCard(f.c))return false;
+ if(pendingSpellEffect){toast('Finish resolving the previous spell first.');return false;}
  if(spellChain.length){const top=spellChain[spellChain.length-1];if(top.player===p||!quick||!isQuickSpell(f.c)){toast('Only a Quick Spell may respond to your opponent.');return false}}
  else if(turn!==p){toast('It is not your turn.');return false}
  if(!quick&&!canSpendAction(p,f.c))return false;
- pushHistory();const c=f.c;f.a.splice(f.k,1);if(!payDarkArtsCosts(p,c)){f.a.splice(f.k,0,c);return false;}if(!quick)spendAction(p,c);
- playGameplaySfx('card');spellChain.push({player:p,card:c,seq:++spellChainSerial});
+ let expExtra=false;
+ if(f.c.name==='Expelliarmus'){
+  expExtra=confirm('Expelliarmus — Optional Additional Cost: discard 1 Lesson to destroy an enemy Ongoing Spell or Item after dealing 2 damage. Pay this cost?');
+  if(expExtra&&!P[p].lessons.length){toast('You need a Lesson in play to pay the optional cost.');return false;}
+ }
+ pushHistory();const c=f.c;f.a.splice(f.k,1);if(!payDarkArtsCosts(p,c)){f.a.splice(f.k,0,c);return false;}if(expExtra){
+  const lessons=P[p].lessons;
+  const input=prompt('Choose a Lesson to discard for Expelliarmus:\n'+lessons.map((x,i)=>(i+1)+'. '+x.name).join('\n'),'1');
+  const ix=Number(input)-1;
+  if(input===null||!Number.isInteger(ix)||ix<0||ix>=lessons.length){f.a.splice(f.k,0,c);toast('Expelliarmus cancelled — invalid Lesson selection.');return false;}
+  P[p].lessonDiscard.push(lessons.splice(ix,1)[0]);
+ }
+ if(!quick)spendAction(p,c);
+ playGameplaySfx('card');spellChain.push({player:p,card:c,seq:++spellChainSerial,expExtra});
  appendComm('log',p,(quick?'Responded with ':'Cast ')+c.name+' (awaiting Resolve).');if(lobbyMode==='invite')onlineSend('action',{message:(quick?'Responded with ':'Cast ')+c.name+' (awaiting Resolve).'});
  spellChainBroadcast();return true;
 }
 function spellChainBroadcast(){
  // Cancel any scheduled state publish so stack and board are sent as one update.
- if(lobbyMode==='invite'){clearTimeout(onlineSendTimer);onlineSend('spell-chain',{stack:spellChain,state:onlineGameState()});}render();
+ if(lobbyMode==='invite'){clearTimeout(onlineSendTimer);onlineSend('spell-chain',{stack:spellChain,pendingSpellEffect,state:onlineGameState()});}render();
 }
 function spellChainApprove(){
  if(!spellChainActive()||(lobbyMode==='invite'&&!onlineConnected))return;
  const top=spellChain[spellChain.length-1];if(top.player===(lobbyMode==='local'?viewPlayer:onlineRole))return;
  // The responding player approves the topmost spell. Resolve from the top of the chain.
- pushHistory();const done=spellChain.pop();const dest=(/ongoing/i.test(done.card.type||'')||done.card.name==='Imperio')?'play':'discard';
+ pushHistory();const done=spellChain.pop();if(done.card.name==='Expelliarmus')pendingSpellEffect={player:done.player,extra:!!done.expExtra,stage:'damage',name:done.card.name};const dest=(/ongoing/i.test(done.card.type||'')||done.card.name==='Imperio')?'play':'discard';
  if(dest==='play'){positionNewPlayCard(done.player,done.card);initializeCountdown(done.card);}
  P[done.player][done.card.castFromDiscard&&dest==='discard'?'exile':dest].push(done.card);
  // Summon spell tokens only when that spell actually resolves, never when cast.
@@ -670,9 +683,38 @@ function useDobbyAbility(){
  spellChainBroadcast();
  toast('Dobby ability used. 1 Lesson discarded.');
 }
+function renderPendingSpellEffect(){
+ const effect=pendingSpellEffect;if(!effect)return;
+ const me=lobbyMode==='local'?viewPlayer:onlineRole,own=me===effect.player;
+ document.getElementById('spellTitle').textContent='Resolve '+effect.name;
+ document.getElementById('spellHint').textContent=own?'The spell was approved. Resolve its effect now.':'Waiting for the caster to resolve the approved spell.';
+ document.getElementById('spellStack').replaceChildren();
+ document.getElementById('spellQuickList').replaceChildren();
+ const actions=document.getElementById('spellActions');actions.replaceChildren();
+ if(lobbyMode==='local'){const b=document.createElement('button');b.textContent='⇄ Switch to Player '+(3-me);b.onclick=()=>switchSide();actions.appendChild(b)}
+ if(!own)return;
+ if(effect.stage==='damage'){
+  const b=document.createElement('button');b.textContent='🎯 Opponent Health — Deal 2 Damage';b.style.background='#315a48';b.onclick=()=>{
+   if(!pendingSpellEffect)return;
+   pushHistory();P[3-effect.player].life-=2;
+   pendingSpellEffect.stage=effect.extra?'destroy':'complete';
+   spellChainBroadcast();toast('Expelliarmus deals 2 damage to opponent.');
+  };actions.appendChild(b);
+ }else if(effect.stage==='destroy'){
+  const targets=P[3-effect.player].play.filter(c=>c.type==='Item'||/ongoing/i.test(c.type||''));
+  if(!targets.length){const b=document.createElement('button');b.textContent='No valid Item / Ongoing Spell — Finish';b.onclick=()=>finishPendingSpellEffect();actions.appendChild(b)}
+  else targets.forEach(c=>{const b=document.createElement('button');b.textContent='Destroy '+c.name;b.onclick=()=>{
+   const i=P[3-effect.player].play.findIndex(x=>x.id===c.id);if(i<0)return;
+   pushHistory();const card=P[3-effect.player].play.splice(i,1)[0];
+   if(!card.isToken)P[3-effect.player][card.castFromDiscard?'exile':'discard'].push(card);
+   toast('Expelliarmus destroys '+card.name);finishPendingSpellEffect();
+  };actions.appendChild(b)});
+ }else{const b=document.createElement('button');b.textContent='✓ Finish Resolution';b.onclick=()=>finishPendingSpellEffect();actions.appendChild(b)}
+}
+function finishPendingSpellEffect(){pendingSpellEffect=null;spellChainBroadcast();}
 function renderSpellChain(){
  const modal=document.getElementById('spellOverlay');if(!modal)return;
- const active=spellChainActive();modal.classList.toggle('open',active);if(!active)return;
+ const active=spellChainActive()||!!pendingSpellEffect;modal.classList.toggle('open',active);if(!active)return;if(!spellChainActive()){renderPendingSpellEffect();return;}
  const top=spellChain[spellChain.length-1],me=lobbyMode==='local'?viewPlayer:onlineRole,waiting=top.player===me;
  document.getElementById('spellTitle').textContent='Spell Chain • '+spellChain.length+' pending';
  document.getElementById('spellHint').textContent=waiting?'Waiting for '+playerLabel(me===1?2:1)+' to respond or approve Resolve.':'Respond with a Quick Spell, Resolve, or Discard '+top.card.name+'.';
@@ -710,7 +752,7 @@ function onlineApplyState(state){if(!state||!state.P||!state.P[1]||!state.P[2])r
 function onlineReceive(msg){if(!msg||msg.role===onlineRole||lobbyMode!=='invite')return;
  if(msg.event==='rematch'&&onlineConnected&&msg.role!==onlineRole){returnToOnlineLobby(false);toast('Your opponent is ready for another game. Choose your deck.');return;}
  if(msg.event==='look-reveal'&&onlineStarted&&msg.player===msg.role&&Array.isArray(msg.cards)&&msg.cards.length<=5&&msg.cards.every(c=>c&&typeof c.name==='string'&&CARD_DB[c.name])){showLookReveal(msg.player,msg.cards);return;}
- if(msg.event==='spell-chain'&&onlineStarted&&Array.isArray(msg.stack)&&msg.state){onlineApplyState(msg.state);spellChain=msg.stack;spellChainSerial=Math.max(spellChainSerial,...spellChain.map(s=>s.seq||0),0);renderSpellChain();return;}
+ if(msg.event==='spell-chain'&&onlineStarted&&Array.isArray(msg.stack)&&msg.state){onlineApplyState(msg.state);spellChain=msg.stack;pendingSpellEffect=msg.pendingSpellEffect||null;spellChainSerial=Math.max(spellChainSerial,...spellChain.map(s=>s.seq||0),0);renderSpellChain();return;}
  if(msg.event.startsWith('undo-')){receiveOnlineUndo(msg);return;}
  if(msg.event==='highlight'&&onlineStarted&&[1,2].includes(msg.cardPlayer)&&Number.isInteger(msg.cardId)){flashOpponentCard(msg.cardPlayer,msg.cardId,!!msg.enabled,false);return;}
  if(msg.event==='basic-cast-used'&&onlineStarted&&msg.player===msg.role){const serial=Number(msg.serial||0);if(serial>basicCastSeenSerial){basicCastSeenSerial=serial;showBasicCastNotice(msg.player);}return;}
