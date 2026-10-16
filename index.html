@@ -191,6 +191,7 @@
 #combatControlBar .combatNextBtn:disabled{opacity:.45;cursor:not-allowed}
 @keyframes combatBarEntrance{from{opacity:0;translate:0 12px}to{opacity:1;translate:0 0}}
 @media(max-width:650px){#combatControlBar{bottom:10px;padding:13px 14px;flex-direction:column;gap:10px;text-align:center}#combatControlBar .combatNextBtn{width:100%;white-space:normal;padding:12px 14px}}
+.effectPointBtn{background:#37586a!important;color:#fff!important;border:1px solid #7ac9e3!important}.targetCandidate{outline:3px solid #f2b55e!important;outline-offset:2px;cursor:crosshair!important}
 </style>
 <style id="startingAllyStatusStyles">
 .char{overflow:visible}
@@ -640,7 +641,7 @@ function spellChainApprove(){
  if(!spellChainActive()||(lobbyMode==='invite'&&!onlineConnected))return;
  const top=spellChain[spellChain.length-1];if(top.player===(lobbyMode==='local'?viewPlayer:onlineRole))return;
  // The responding player approves the topmost spell. Resolve from the top of the chain.
- pushHistory();const done=spellChain.pop();if(done.card.name==='Expelliarmus')pendingSpellEffect={player:done.player,extra:!!done.expExtra,stage:'damage',name:done.card.name};const dest=(/ongoing/i.test(done.card.type||'')||done.card.name==='Imperio')?'play':'discard';
+ pushHistory();const done=spellChain.pop();if(done.card.name==='Expelliarmus')pendingSpellEffect={player:done.player,extra:!!done.expExtra,stage:done.expExtra?'destroy':'complete',name:done.card.name};const dest=(/ongoing/i.test(done.card.type||'')||done.card.name==='Imperio')?'play':'discard';
  if(dest==='play'){positionNewPlayCard(done.player,done.card);initializeCountdown(done.card);}
  P[done.player][done.card.castFromDiscard&&dest==='discard'?'exile':dest].push(done.card);
  // Summon spell tokens only when that spell actually resolves, never when cast.
@@ -696,19 +697,14 @@ function renderPendingSpellEffect(){
  const effect=pendingSpellEffect;if(!effect)return;
  const me=lobbyMode==='local'?viewPlayer:onlineRole,own=me===effect.player;
  document.getElementById('spellTitle').textContent='Resolve '+effect.name;
- document.getElementById('spellHint').textContent=own?'The spell was approved. Resolve its effect now.':'Waiting for the caster to resolve the approved spell.';
+ document.getElementById('spellHint').textContent=own?'Spell approved. Point to a target to communicate the effect; resolve spell damage manually.':'Waiting for the caster to finish the approved spell.';
  document.getElementById('spellStack').replaceChildren();
  document.getElementById('spellQuickList').replaceChildren();
  const actions=document.getElementById('spellActions');actions.replaceChildren();
  if(lobbyMode==='local'){const b=document.createElement('button');b.textContent='⇄ Switch to Player '+(3-me);b.onclick=()=>switchSide();actions.appendChild(b)}
+ if(own){const point=document.createElement('button');point.textContent='🎯 Point effect (manual)';point.onclick=()=>startEffectPointer(effect.player,null,effect.name,true);actions.appendChild(point)}
  if(!own)return;
- if(effect.stage==='damage'){
-  const b=document.createElement('button');b.textContent='🎯 Opponent Health — Deal 2 Damage';b.style.background='#315a48';b.onclick=()=>{
-   if(!pendingSpellEffect)return;
-   pushHistory();P[3-effect.player].life-=2;
-   pendingSpellEffect.stage=effect.extra?'destroy':'complete';
-   spellChainBroadcast();toast('Expelliarmus deals 2 damage to opponent.');
-  };actions.appendChild(b);
+ if(effect.stage==='damage'){pendingSpellEffect.stage=effect.extra?'destroy':'complete';renderPendingSpellEffect();
  }else if(effect.stage==='destroy'){
   const targets=P[3-effect.player].play.filter(c=>c.type==='Item'||/ongoing/i.test(c.type||''));
   if(!targets.length){const b=document.createElement('button');b.textContent='No valid Item / Ongoing Spell — Finish';b.onclick=()=>finishPendingSpellEffect();actions.appendChild(b)}
@@ -748,6 +744,7 @@ function renderSpellChain(){
   }
  }
 
+ const point=document.createElement('button');point.textContent='🎯 Point '+top.card.name;point.onclick=()=>startEffectPointer(top.player,null,top.card.name,true);actions.appendChild(point);
  const resolve=document.createElement('button');resolve.textContent='✓ Resolve '+top.card.name;resolve.style.background='#315a48';resolve.onclick=spellChainApprove;actions.appendChild(resolve);
  const discard=document.createElement('button');discard.textContent='✕ Discard '+top.card.name;discard.style.background='#713a42';discard.title='Discard this spell without resolving its effect';discard.onclick=spellChainDiscard;actions.appendChild(discard);
  }else{const label=document.createElement('p');label.textContent='The opponent must respond. You cannot resolve your own spell.';actions.appendChild(label)}
@@ -759,6 +756,7 @@ function onlinePublish(event='state'){if(lobbyMode!=='invite'||!onlineStarted||o
 function onlineQueuePublish(){if(lobbyMode!=='invite'||!onlineStarted||onlineApplying)return;clearTimeout(onlineSendTimer);onlineSendTimer=setTimeout(()=>onlinePublish('state'),80)}
 function onlineApplyState(state){if(!state||!state.P||!state.P[1]||!state.P[2])return;const incomingCastSerial=Number(state.basicCastEventSerial||0);basicCastEventSerial=Math.max(basicCastEventSerial,incomingCastSerial);if(incomingCastSerial>basicCastSeenSerial&&state.basicCastEventPlayer&&state.basicCastEventPlayer!==onlineRole){basicCastSeenSerial=incomingCastSerial;showBasicCastNotice(state.basicCastEventPlayer);}const sameGameState=JSON.stringify({P,phase,turn})===JSON.stringify({P:state.P,phase:state.phase,turn:state.turn});if(sameGameState){onlineRevision=Math.max(onlineRevision,state.revision||0);return;}if(pendingUndoOut){pendingUndoOut=null;toast('Undo cancelled: game state changed.');}let previousTurn=turn,wasStarted=onlineStarted;onlineApplying=true;P[1]=state.P[1];P[2]=state.P[2];phase=state.phase;turn=state.turn;id=Math.max(id,state.id||1);onlineRevision=Math.max(onlineRevision,state.revision||0);onlineStarted=true;commBaseline={P:JSON.parse(JSON.stringify(P)),turn};renderComm();viewPlayer=onlineRole;document.getElementById('game').classList.toggle('view2',onlineRole===2);document.getElementById('game').classList.remove('screenHidden');document.getElementById('lobby').classList.add('screenHidden');document.getElementById('switchSideBtn').style.display='none';document.getElementById('turnOrderModal').style.display='none';document.getElementById('modal').style.display='none';history=[];render();document.getElementById('status').textContent=playerLabel(turn)+' Turn • ONLINE';onlineApplying=false;if(phase==='onlineMull'){onlineMullSelection=[];onlineMullSubmitted=false;onlineMullReady={1:false,2:false};renderOnlineMull()}else{renderOnlineMull();if(!wasStarted||previousTurn!==turn)announceTurn(turn)}}
 function onlineReceive(msg){if(!msg||msg.role===onlineRole||lobbyMode!=='invite')return;
+ if(msg.event==='effect-pointer'&&onlineStarted&&msg.sourcePlayer===msg.role&&[1,2].includes(msg.targetPlayer)&&typeof msg.sourceName==='string'&&typeof msg.targetName==='string'){showEffectPointer(msg);appendComm('log',msg.role,msg.sourceName+' → '+msg.targetName+' (pointed; resolve manually)');return;}
  if(msg.event==='rematch'&&onlineConnected&&msg.role!==onlineRole){returnToOnlineLobby(false);toast('Your opponent is ready for another game. Choose your deck.');return;}
  if(msg.event==='look-reveal'&&onlineStarted&&msg.player===msg.role&&Array.isArray(msg.cards)&&msg.cards.length<=5&&msg.cards.every(c=>c&&typeof c.name==='string'&&CARD_DB[c.name])){showLookReveal(msg.player,msg.cards);return;}
  if(msg.event==='spell-chain'&&onlineStarted&&Array.isArray(msg.stack)&&msg.state){onlineApplyState(msg.state);spellChain=msg.stack;pendingSpellEffect=msg.pendingSpellEffect||null;spellChainSerial=Math.max(spellChainSerial,...spellChain.map(s=>s.seq||0),0);renderSpellChain();return;}
@@ -947,7 +945,7 @@ function targetCancel(){targetSelection=null;document.getElementById('targetLine
 function drawTargetArrow(e){
  if(!targetSelection)return;
  const t=targetSelection;
- let source=document.querySelector('.card[data-player="'+t.p+'"][data-id="'+t.sourceId+'"]');
+ let source=t.fromStack?document.querySelector('#spellStack .spellStackCard.top'):document.querySelector('.card[data-player="'+t.p+'"][data-id="'+t.sourceId+'"]');
  if(!source)return;
  let svg=document.getElementById('targetLine');
  if(!svg){svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.id='targetLine';svg.setAttribute('style','position:fixed;inset:0;width:100vw;height:100vh;z-index:500;pointer-events:none;overflow:visible');svg.innerHTML='<defs><marker id="targetArrowHead" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#f2b55e"/></marker></defs><path id="targetArrowPath" fill="none" stroke="#f2b55e" stroke-width="4" stroke-linecap="round" marker-end="url(#targetArrowHead)"/>';document.body.appendChild(svg)}
@@ -1013,7 +1011,34 @@ function resolveBludger(victim,cardId=null){
  else P[victim].life-=2;
  targetCancel();render();toast('Bludger deals 2 damage.');return true;
 }
-function targetPick(p,id=null){if(!targetSelection)return false;return targetSelection.mode==='bludger'?resolveBludger(p,id):targetResolve(p,id);}
+function targetPick(p,id=null){if(!targetSelection)return false;if(targetSelection.mode==='signal')return finishEffectPointer(p,id);return targetSelection.mode==='bludger'?resolveBludger(p,id):targetResolve(p,id);}
+// Communication-only pointing: no damage, cost, card movement, or Action expenditure.
+function startEffectPointer(p,sourceId,sourceName,fromStack=false){
+ if(phase!=='game'||!onlineOwns(p))return;
+ targetCancel();hideZoom();targetSelection={p,sourceId,sourceName,mode:'signal',fromStack};
+ document.querySelectorAll('.card,.playerLife,.char').forEach(el=>el.classList.add('targetCandidate'));
+ toast('Point '+sourceName+' at a card or player Health. No effect is applied automatically.');
+}
+function finishEffectPointer(victim,cardId=null){
+ const t=targetSelection;if(!t||t.mode!=='signal'||!onlineOwns(t.p))return false;
+ let label='Player '+victim+' Health';if(cardId!==null){const f=locate(victim,cardId);if(!f)return false;label=f.c.name;}
+ const payload={sourcePlayer:t.p,sourceId:t.sourceId,sourceName:t.sourceName,sourceStack:!!t.fromStack,targetPlayer:victim,targetId:cardId,targetName:label};
+ targetCancel();showEffectPointer(payload);appendComm('log',t.p,t.sourceName+' → '+label+' (pointed; resolve manually)');
+ if(lobbyMode==='invite')onlineSend('effect-pointer',payload);
+ return true;
+}
+function showEffectPointer(data){
+ const source=data.sourceStack?document.querySelector('#spellStack .spellStackCard.top'):(document.querySelector('.card[data-player="'+data.sourcePlayer+'"][data-id="'+data.sourceId+'"]'));
+ const target=data.targetId!==null?document.querySelector('.card[data-player="'+data.targetPlayer+'"][data-id="'+data.targetId+'"]'):document.querySelector('.p'+data.targetPlayer+' .playerLife');
+ const origin=source||document.querySelector('.p'+data.sourcePlayer+' .char');
+ if(!origin||!target){toast(data.sourceName+' → '+data.targetName);return;}
+ const a=origin.getBoundingClientRect(),b=target.getBoundingClientRect();
+ let svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.classList.add('effectSignalArrow');svg.setAttribute('viewBox','0 0 '+innerWidth+' '+innerHeight);svg.style.cssText='position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:16000;overflow:visible';
+ const ns='http://www.w3.org/2000/svg',defs=document.createElementNS(ns,'defs'),marker=document.createElementNS(ns,'marker');marker.setAttribute('id','signalHead'+Date.now());marker.setAttribute('markerWidth','10');marker.setAttribute('markerHeight','10');marker.setAttribute('refX','8');marker.setAttribute('refY','4');marker.setAttribute('orient','auto');const head=document.createElementNS(ns,'path');head.setAttribute('d','M0 0 L8 4 L0 8 Z');head.setAttribute('fill','#f2b55e');marker.appendChild(head);defs.appendChild(marker);svg.appendChild(defs);
+ const path=document.createElementNS(ns,'path'),x=a.left+a.width/2,y=a.top+a.height/2,tx=b.left+b.width/2,ty=b.top+b.height/2;path.setAttribute('d',`M${x} ${y} Q${(x+tx)/2} ${Math.min(y,ty)-45} ${tx} ${ty}`);path.setAttribute('stroke','#f2b55e');path.setAttribute('stroke-width','5');path.setAttribute('fill','none');path.setAttribute('stroke-linecap','round');path.setAttribute('marker-end','url(#'+marker.id+')');svg.appendChild(path);document.body.appendChild(svg);
+ target.classList.add('targetCandidate');toast(data.sourceName+' → '+data.targetName+' (manual effect)');setTimeout(()=>{svg.remove();target.classList.remove('targetCandidate')},2400);
+}
+
 function renderCombatControls(){
  const bar=document.getElementById('combatControlBar');if(!bar)return;
  const active=phase==='game'&&P[turn]?.combatStep==='combat';bar.style.display=active?'flex':'none';
@@ -1022,13 +1047,14 @@ function renderCombatControls(){
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape')targetCancel()});
 function makeCard(c,p,z){let x=document.createElement('div');let hidden=z==='handHidden';x.className='card'+(hidden?' back':(c.image?' hasImage':'')+(c.face?'':' back')+(c.tapped?' tapped':'')+(z=='mull'&&P[p].mull.includes(c.id)?' selected':''));x.dataset.id=c.id;x.dataset.player=p;if(opponentFlashTimers.has(p+'-'+c.id))x.classList.add('opponentMarked');x.draggable=!hidden&&onlineOwns(p);if(hidden){x.innerHTML='<img class="cardBackImage" src="'+BACKS.main+'"><div class="name backFallback">CARD BACK</div>';let bi=x.querySelector('.cardBackImage');if(bi)bi.onerror=()=>{bi.style.display='none';let f=x.querySelector('.backFallback');if(f)f.style.display='block'};return x}let img=c.image?'<img class="cardImage" src="'+c.image+'" draggable="false">':'';x.innerHTML=c.face?img+'<div class="cost">'+c.cost+'</div><div class="state">'+(c.frozen?'<span class="frozen">❄ Frozen</span>':'')+(c.shield?'<span class="shield">🛡 Shield</span>':'')+'</div>'+(c.image?'':'<div class="name">'+c.name+'</div><div class="type">'+c.type+'</div>')+(c.life!==null&&c.type==='Creature'?'<div class="life">♥ '+c.life+'</div>':'')+(z==='play'&&printedCountdown(c)!==null?'<div class="countdownBadge">⏳ '+Math.max(0,(c.countdownLeft??(printedCountdown(c)+1))-1)+'</div>':'')+(c.counter?'<div class="counter">'+(c.counter>0?'+':'')+c.counter+'</div>':''):'<img class="cardBackImage" src="'+(c.type==='Lesson'?BACKS.lesson:BACKS.main)+'"><div class="name backFallback">CARD BACK</div>';if(!c.face){let bi=x.querySelector('.cardBackImage');if(bi)bi.onerror=()=>{bi.style.display='none';let f=x.querySelector('.backFallback');if(f)f.style.display='block'}}x.ondragstart=e=>{if(!onlineCanPlay(p)){e.preventDefault();return}hideZoom();sel={p,id:c.id};e.dataTransfer.setData('card',c.id+'|'+p)};x.ondragend=()=>hideZoom();if(z==='play'){x.ondragover=e=>e.preventDefault();x.ondrop=e=>{e.preventDefault();e.stopPropagation();const parts=e.dataTransfer.getData('card').split('|');if(+parts[1]!==p)return;const moving=locate(p,+parts[0]);if(!moving)return;if(moving.a===P[p].hand&&isSpellCard(moving.c)){spellChainCast(p,moving.c.id);return;}if(spellChainActive()){toast('Resolve the spell chain first.');return;}if(moving.a===P[p].hand&&P[p].combatStep==='combat'){toast('Finish Combat before playing cards.');return;}if(moving.a===P[p].play){reorderPlayCard(p,+parts[0],P[p].play.findIndex(v=>v.id===c.id));}else{if(phase==='game')pushHistory();moving.a.splice(moving.k,1);positionNewPlayCard(p,moving.c);P[p].play.splice(P[p].play.findIndex(v=>v.id===c.id),0,moving.c);render();}};}x.ondblclick=()=>{if(!onlineCanPlay(p))return;c.tapped=!c.tapped;render()};x.oncontextmenu=e=>{e.preventDefault();if(!onlineCanPlay(p))return;sel={p,id:c.id};showMenu(e.clientX,e.clientY)};x.onmouseenter=e=>showZoom(c,e);x.onmouseleave=hideZoom;if(z=='mull')x.onclick=()=>toggleM(p,c.id);
+ if((z==='play'||(z==='hand'&&isSpellCard(c)))){const point=document.createElement('button');point.className='autoAttackBtn effectPointBtn';point.textContent='🎯';point.title='Point this card effect (no automatic damage)';point.onclick=e=>{e.stopPropagation();startEffectPointer(p,c.id,c.name)};x.appendChild(point)}
  if(z==='play'&&c.type==='Creature'){
   const b=document.createElement('button');b.className='autoAttackBtn';b.textContent='⚔';b.title='Assign creature damage';b.onclick=e=>{e.stopPropagation();targetStart(p,c.id,cardAttack(c));};x.appendChild(b);
  }
  if(z==='play'&&c.name==='Beater'){
   const b=document.createElement('button');b.className='autoAttackBtn';b.textContent='Activate';b.title='Beater ability (0 Actions)';b.onclick=e=>{e.stopPropagation();activateBeater(p,c.id)};x.appendChild(b);
  }
- x.addEventListener('click',e=>{if(targetSelection&&p!==targetSelection.p&&z==='play'&&c.type==='Creature'){e.stopPropagation();targetPick(p,c.id);}},true);
+ x.addEventListener('click',e=>{if(targetSelection&&(targetSelection.mode==='signal'||p!==targetSelection.p)&&z==='play'&&(targetSelection.mode==='signal'||c.type==='Creature')){e.stopPropagation();targetPick(p,c.id);}},true);
  installOpponentClick(x,p,c,z);return x}
 function showZoom(c,e){if(!c.face)return;let z=document.getElementById('zoom'),img=z.querySelector('.zimage'),fallback=z.querySelector('.zfallback');if(c.image){img.src=c.image;img.style.display='block';fallback.style.display='none'}else{img.removeAttribute('src');img.style.display='none';fallback.style.display='block';z.querySelector('.zname').textContent=c.name;z.querySelector('.ztype').textContent=c.type;z.querySelector('.zcost').textContent='Cost: '+c.cost}z.style.display='block';let w=z.offsetWidth,h=z.offsetHeight,gap=18,pad=12;let x=e.clientX+gap,y=e.clientY-h/2;if(x+w>innerWidth-pad)x=e.clientX-w-gap;if(x<pad)x=pad;y=Math.max(pad,Math.min(y,innerHeight-h-pad));z.style.left=x+'px';z.style.top=y+'px'}function hideZoom(){document.getElementById('zoom').style.display='none'}
 function locate(p,i){let s=P[p];for(let z of ['hand','play','lessons','discard','lessonDiscard','main','lessonDeck']){let a=s[z],k=a.findIndex(c=>c.id==i);if(k>=0)return{a,k,c:a[k]}}}function move(p,i,z){let f=locate(p,i);if(!f)return false;const lesson=z==='lessons'&&f.c.type==='Lesson'&&(f.a===P[p].lessonDeck||f.a===P[p].hand);const played=z==='play'&&f.a===P[p].hand; if((lesson||played)&&!canSpendAction(p,f.c,lesson))return false;if(played&&darkArtsCard(f.c)){if(!payDarkArtsCosts(p,f.c))return false;}if(lesson||played)spendAction(p,f.c,lesson);f.a.splice(f.k,1);if(f.c.isToken&&z!=='play')return false;if(z==='play'&&f.a!==P[p].play){positionNewPlayCard(p,f.c);initializeCountdown(f.c);}P[p][f.c.castFromDiscard&&f.a===P[p].play&&z!=='play'?'exile':f.c.castFromDiscard&&z==='discard'?'exile':z].push(f.c);if(played)playGameplaySfx('card');if(played&&f.c.name==='Bludger')queueMicrotask(()=>startBludgerDamage(p,f.c.id));if(z!='lessons')f.c.tapped=false;return true}
@@ -1071,7 +1097,7 @@ function render(){renderCombatControls();if(lobbyMode==='local'&&phase==='game')
  if(s.char.shield){const tag=document.createElement('span');tag.className='shield';tag.textContent='🛡 Shield';state.appendChild(tag)}
  charEl.appendChild(state);
  charEl.oncontextmenu=e=>{e.preventDefault();hideZoom();if(!onlineOwns(p)){toast('You can only control your own Starting Ally.');return;}showStartingAllyMenu(e.clientX,e.clientY,p)};
-}const playerHead=q.querySelector('.head');if(playerHead){playerHead.style.cursor='crosshair';playerHead.addEventListener('click',e=>{if(targetSelection&&p!==targetSelection.p){e.stopPropagation();targetPick(p);}},true);} 
+}const playerHead=q.querySelector('.head');if(playerHead){playerHead.style.cursor='crosshair';playerHead.addEventListener('click',e=>{if(targetSelection&&(targetSelection.mode==='signal'||p!==targetSelection.p)){e.stopPropagation();targetPick(p);}},true);} 
 let play=document.getElementById('play'+p),less=document.getElementById('lessons'+p),hand=document.getElementById('hand'+p);s.play.forEach(c=>{let x=makeCard(c,p,'play');let pos=battlefieldSlot(play,s.play.indexOf(c));x.style.left=pos.x+'px';x.style.top=pos.y+'px';x.style.transform='rotate('+c.rot+'deg)';play.appendChild(x)});s.lessons.forEach(c=>less.appendChild(makeCard(c,p,'lessons')));if(p===viewPlayer){let tools=document.createElement('div');tools.className='handTools';let shuffleBtn=document.createElement('button');shuffleBtn.textContent='Shuffle Hand Into Deck';shuffleBtn.onclick=e=>{e.stopPropagation();if(!onlineCanPlay(p))return;if(!P[p].hand.length){toast('Your hand is empty.');return;}if(phase==='game')pushHistory();const returned=P[p].hand.length;P[p].main.push(...P[p].hand.splice(0));sh(P[p].main);playGameplaySfx('shuffle');render();toast(returned+' card'+(returned===1?'':'s')+' shuffled into deck. No cards drawn.')} ;let revealBtn=document.createElement('button');revealBtn.textContent=P[p].handRevealed?'Hide Hand':'Reveal Hand';revealBtn.onclick=e=>{e.stopPropagation();if(phase==='game')pushHistory();P[p].handRevealed=!P[p].handRevealed;render();toast(P[p].handRevealed?'Hand revealed to the opponent.':'Hand hidden from the opponent.')} ;tools.append(shuffleBtn,revealBtn);hand.appendChild(tools)}s.hand.forEach(c=>hand.appendChild(makeCard(c,p,(p===viewPlayer||P[p].handRevealed)?'hand':'handHidden')));[play,less,hand].forEach(z=>{z.ondragover=e=>e.preventDefault();z.ondrop=e=>{e.preventDefault();let a=e.dataTransfer.getData('card').split('|'),pp=+a[1],cid=+a[0];if(pp!=p||!onlineCanPlay(p))return;let f=locate(p,cid);if(!f)return;if(z===play&&f.a===P[p].hand&&isSpellCard(f.c)){spellChainCast(p,f.c.id);return;}if(spellChainActive()){toast('Resolve the spell chain first.');return;}let to=z==play?'play':z==less?'lessons':'hand';let lesson=to==='lessons'&&f.c.type==='Lesson'&&(f.a===P[p].lessonDeck||f.a===P[p].hand),played=to==='play'&&f.a===P[p].hand;if((lesson||played)&&!canSpendAction(p,f.c,lesson))return;if(phase==='game')pushHistory();if(played&&darkArtsCard(f.c)){if(!payDarkArtsCosts(p,f.c))return;}if(lesson||played)spendAction(p,f.c,lesson);f.a.splice(f.k,1);if(to=='play'){if(f.a===P[p].play){let target=battlefieldDropIndex(z,p,e.clientX,e.clientY);P[p].play.splice(Math.max(0,Math.min(P[p].play.length,target)),0,f.c);render();return;}else{positionNewPlayCard(p,f.c);initializeCountdown(f.c)}}P[p][to].push(f.c);if(played)playGameplaySfx('card');render()}});let discard=document.getElementById('discard'+p),lessonDiscard=document.getElementById('ldiscard'+p);[[discard,'discard'],[lessonDiscard,'lessonDiscard']].forEach(([z,to])=>{if(!z)return;z.ondragover=e=>e.preventDefault();z.ondrop=e=>{e.preventDefault();let a=e.dataTransfer.getData('card').split('|'),pp=+a[1],cid=+a[0];if(pp!=p||!onlineCanPlay(p))return;let f=locate(p,cid);if(!f)return;let dest=(to==='lessonDiscard'||f.a===P[p].lessons||f.a===P[p].lessonDeck||f.c.type==='Lesson')?'lessonDiscard':'discard';if(phase==='game')pushHistory();f.a.splice(f.k,1);P[p][f.c.castFromDiscard&&dest==='discard'?'exile':dest].push(f.c);f.c.tapped=false;render();toast(dest==='lessonDiscard'?'Lesson discarded.':'Card discarded.')}});['main','lesson','discard','ldiscard'].forEach(z=>{let q=document.getElementById((z=='lesson'?'lesson':z)+(z=='main'||z=='lesson'?p:p));if(q){q.ondblclick=()=>{openViewer(p,z)};if(z==='main'||z==='lesson')q.oncontextmenu=e=>{e.preventDefault();showDeckMenu(e.clientX,e.clientY,p,z)}}})}renderSpellChain();onlineQueuePublish()}
 let viewer={p:1,z:'main',mode:'search',revealed:[]};
 function openViewer(p,z){if(lobbyMode==='invite'&&onlineStarted&&p!==onlineRole&&(z==='main'||z==='lesson')){toast('Opponent deck is private.');return}viewer={p,z,mode:z==='main'?'search':'public',revealed:[]};document.getElementById('deckModal').style.display='flex';renderViewer()}
