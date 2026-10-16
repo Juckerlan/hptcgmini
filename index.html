@@ -380,7 +380,47 @@
 }
 #game .player .pileWrap{justify-content:center;align-items:center;align-self:center;min-height:0}
 #game .player .pile{flex-shrink:1}
-</style></head><body><audio id="gameplayBackgroundMusic" src="backgrounds/back_music.mp3" preload="none" loop playsinline></audio><div id="home" class="home"><img class="landingSnitch" src="backgrounds/snitch.gif" alt="" aria-hidden="true" onerror="this.style.display='none'"><div class="homeBox"><h1 class="homeTitle"><img src="backgrounds/hpmini_title.png" alt="Pocket TCG Simulator" onerror="this.style.display='none';this.parentNode.appendChild(document.createTextNode('Pocket TCG Simulator'))"></h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div><div class="landingVersion">Pocket Magic Awakened · v1.122</div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
+</style>
+<style id="gameplayTextureV123">
+/* V1.123: gameplay-only textures. Keep the approved board geometry untouched. */
+#game .table{
+ background-color:#241a17!important;
+}
+/* A warm, dark brown tint on the original Hogwarts menu texture. */
+#game .table{
+ background-image:
+  linear-gradient(rgba(36,21,15,.79),rgba(27,17,14,.85)),
+  url("backgrounds/hpmini_background.jpg")!important;
+ background-position:center center!important;
+ background-size:cover!important;
+ background-repeat:no-repeat!important;
+}
+#game .player .center .zone,
+#game .player .center .hand,
+#game .player .pile,
+#game .player .char,
+#game .player .head{
+ background-color:#16273b!important;
+ background-image:linear-gradient(rgba(6,19,38,.20),rgba(5,16,33,.28)),url("backgrounds/blue_back.jpg")!important;
+ background-position:center center!important;
+ background-size:cover!important;
+ background-repeat:no-repeat!important;
+ border-style:solid!important;
+ border-width:5px!important;
+ border-color:#8d7957!important;
+ border-image-source:url("backgrounds/magic_border.png")!important;
+ border-image-slice:28!important;
+ border-image-repeat:stretch!important;
+}
+/* Preserve zone geometry, card images and hit targets. */
+#game .player .center .zone,
+#game .player .center .hand{border-width:5px!important}
+#game .player .head{border-width:4px!important}
+#game .player .pile,#game .player .char{border-width:3px!important}
+#game .player .center .zone .label{color:#eee0c5}
+#game .table::after{background:linear-gradient(90deg,#574128,#d0af76 30%,#755630 50%,#d0af76 70%,#574128)}
+</style>
+</head><body><audio id="gameplayBackgroundMusic" src="backgrounds/back_music.mp3" preload="none" loop playsinline></audio><div id="home" class="home"><img class="landingSnitch" src="backgrounds/snitch.gif" alt="" aria-hidden="true" onerror="this.style.display='none'"><div class="homeBox"><h1 class="homeTitle"><img src="backgrounds/hpmini_title.png" alt="Pocket TCG Simulator" onerror="this.style.display='none';this.parentNode.appendChild(document.createTextNode('Pocket TCG Simulator'))"></h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div><div class="landingVersion">Pocket Magic Awakened · v1.123</div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
 <div class="rulesBar"><h2>📖 Official Game Guide</h2><span style="flex:1"></span><button onclick="showHome()">← Back to Menu</button></div>
 <div class="rulesLayout"><nav class="rulesNav" aria-label="Rulebook sections">
 <a href="#rules-overview">Overview</a><a href="#rules-decks">Deck Building</a><a href="#rules-setup">Setup & Mulligan</a><a href="#rules-turn">Turn Structure</a><a href="#rules-actions">Actions & Lessons</a><a href="#rules-cards">Card Types</a><a href="#rules-spells">Spell Chains</a><a href="#rules-creatures">Creatures & Damage</a><a href="#rules-keywords">Keywords</a><a href="#rules-tokens">Tokens</a><a href="#rules-online">Online & Local Play</a><a href="#rules-reference">Quick Reference</a>
