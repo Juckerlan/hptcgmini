@@ -496,7 +496,42 @@
  #sideboardModal>div{padding:12px!important}
 }
 </style>
-</head><body><div id="sideboardModal" style="display:none;position:fixed;inset:0;z-index:30000;background:rgba(5,10,24,.94);overflow:auto;padding:24px;color:#f2e6cb"><div style="max-width:960px;margin:auto;background:#14243a;border:2px solid #a98a54;border-radius:14px;padding:22px"><h2 id="sideboardTitle">Sideboard</h2><p id="sideboardHelp">Swap up to five cards. Choose a card from each column to exchange.</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:18px"><section><h3>Main Deck <span id="sideMainCount"></span></h3><div id="sideMainCards" style="max-height:55vh;overflow:auto"></div></section><section><h3>Sideboard <span id="sideReserveCount"></span></h3><div id="sideReserveCards" style="max-height:55vh;overflow:auto"></div></section></div><p id="sideboardStatus"></p><button id="sideboardConfirm" onclick="confirmSideboard()" style="padding:12px 24px;background:#ac8d54;color:#101827;font-weight:bold">Confirm Sideboard</button></div></div><audio id="gameplayBackgroundMusic" src="backgrounds/back_music.mp3" preload="none" loop playsinline></audio><div id="home" class="home"><img class="landingSnitch" src="backgrounds/snitch.gif" alt="" aria-hidden="true" onerror="this.style.display='none'"><div class="homeBox"><h1 class="homeTitle"><img src="backgrounds/hpmini_title.png" alt="Pocket TCG Simulator" onerror="this.style.display='none';this.parentNode.appendChild(document.createTextNode('Pocket TCG Simulator'))"></h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div><div class="landingVersion">Pocket Magic Awakened · v1.137</div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
+
+<style id="mobilePortraitV138">
+/* All overrides scoped to portrait mobile; desktop is untouched. */
+@media (max-width:767px) and (orientation:portrait){
+ #game .table::after,#game.view2 .table::after{display:none!important;content:none!important}
+ #game .table,#game.view2 .table{gap:10px!important;padding-bottom:92px!important}
+ #game .player.opponent,#game.view2 .player.opponent{border-bottom:3px solid #c5a46a!important;margin-bottom:5px!important;padding-bottom:12px!important}
+ #game .player,#game.view2 .player{border-radius:9px!important}
+ #game .player .head,#game.view2 .player .head{min-height:44px!important;gap:7px!important}
+ #game .player .char,#game.view2 .player .char{width:46px!important;min-width:46px!important;height:46px!important;border-radius:50%!important;border:2px solid #c5a46a!important;position:relative!important;cursor:zoom-in;overflow:hidden!important;padding:0!important;flex:0 0 46px!important}
+ #game .player .char img,#game.view2 .player .char img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center 19%!important;transform:scale(2.15)!important;transform-origin:center 24%!important;border-radius:50%!important}
+ #game .player .char>span:not(.startingAllyStates),#game.view2 .player .char>span:not(.startingAllyStates){display:none!important}
+ #game .player .char .startingAllyStates{position:absolute!important;bottom:0;left:0;right:0;z-index:3;font-size:8px}
+ #game .player .center .zone.play{height:94px!important;flex-basis:94px!important}
+ #game .player .center .zone.lessons{height:73px!important;flex-basis:73px!important}
+ #game .player.opponent .center .hand{height:64px!important;flex-basis:64px!important}
+ #game .player .piles,#game.view2 .player .piles{margin:0!important;padding-bottom:6px!important}
+ #game .player .head,#game .player .center,#game .player .piles,
+ #game.view2 .player .head,#game.view2 .player .center,#game.view2 .player .piles{transform:none!important;rotate:0deg!important}
+ #game .player.opponent .center .hand{order:1!important}
+ #game .player.opponent .center .lessons{order:2!important}
+ #game .player.opponent .center .play{order:3!important}
+ #game .player:not(.opponent) .center .play{order:1!important}
+ #game .player:not(.opponent) .center .lessons{order:2!important}
+ #game .player:not(.opponent) .center .hand{order:3!important}
+ #game .player .center .zone .card,#game .player .center .hand .card{rotate:0deg!important}
+ #game #bar{position:relative!important}
+ #commToggle,#chatToggle{bottom:10px!important;right:8px!important}
+}
+#startingAllyMobileOverlay{display:none;position:fixed;inset:0;z-index:50000;background:rgba(4,9,21,.92);align-items:center;justify-content:center;padding:18px;box-sizing:border-box}
+#startingAllyMobileOverlay.open{display:flex}
+#startingAllyMobileOverlay .allyPopup{max-width:min(90vw,370px);max-height:90dvh;display:flex;flex-direction:column;align-items:center;gap:10px}
+#startingAllyMobileOverlay img{max-width:100%;max-height:76dvh;object-fit:contain;border-radius:10px}
+#startingAllyMobileOverlay button{padding:10px 26px;border:1px solid #c5a46a;background:#172a44;color:#f7e9c9;border-radius:8px}
+</style>
+</head><body><div id="startingAllyMobileOverlay" role="dialog" aria-modal="true" aria-label="Starting Ally card" onclick="closeStartingAllyMobile(event)"><div class="allyPopup"><img id="startingAllyMobileImage" alt="Starting Ally full card"><button type="button" onclick="closeStartingAllyMobile(event)">Close</button></div></div><div id="sideboardModal" style="display:none;position:fixed;inset:0;z-index:30000;background:rgba(5,10,24,.94);overflow:auto;padding:24px;color:#f2e6cb"><div style="max-width:960px;margin:auto;background:#14243a;border:2px solid #a98a54;border-radius:14px;padding:22px"><h2 id="sideboardTitle">Sideboard</h2><p id="sideboardHelp">Swap up to five cards. Choose a card from each column to exchange.</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:18px"><section><h3>Main Deck <span id="sideMainCount"></span></h3><div id="sideMainCards" style="max-height:55vh;overflow:auto"></div></section><section><h3>Sideboard <span id="sideReserveCount"></span></h3><div id="sideReserveCards" style="max-height:55vh;overflow:auto"></div></section></div><p id="sideboardStatus"></p><button id="sideboardConfirm" onclick="confirmSideboard()" style="padding:12px 24px;background:#ac8d54;color:#101827;font-weight:bold">Confirm Sideboard</button></div></div><audio id="gameplayBackgroundMusic" src="backgrounds/back_music.mp3" preload="none" loop playsinline></audio><div id="home" class="home"><img class="landingSnitch" src="backgrounds/snitch.gif" alt="" aria-hidden="true" onerror="this.style.display='none'"><div class="homeBox"><h1 class="homeTitle"><img src="backgrounds/hpmini_title.png" alt="Pocket TCG Simulator" onerror="this.style.display='none';this.parentNode.appendChild(document.createTextNode('Pocket TCG Simulator'))"></h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div><div class="landingVersion">Pocket Magic Awakened · v1.138</div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
 <div class="rulesBar"><h2>📖 Official Game Guide</h2><span style="flex:1"></span><button onclick="showHome()">← Back to Menu</button></div>
 <div class="rulesLayout"><nav class="rulesNav" aria-label="Rulebook sections">
 <a href="#rules-overview">Overview</a><a href="#rules-decks">Deck Building</a><a href="#rules-setup">Setup & Mulligan</a><a href="#rules-turn">Turn Structure</a><a href="#rules-actions">Actions & Lessons</a><a href="#rules-cards">Card Types</a><a href="#rules-spells">Spell Chains</a><a href="#rules-creatures">Creatures & Damage</a><a href="#rules-keywords">Keywords</a><a href="#rules-tokens">Tokens</a><a href="#rules-online">Online & Local Play</a><a href="#rules-reference">Quick Reference</a>
@@ -1389,8 +1424,25 @@ function battlefieldDropIndex(zone,p,clientX,clientY){
  return Math.min(P[p].play.length-1,row*cols+col);
 }
 function renderDiscardTop(p,zone,card){let box=document.getElementById(zone+p);if(!box)return;box.innerHTML='';if(!card)return;let img=document.createElement('img');img.className='discardTop';img.src=card.image||'';img.alt=card.name||'Last discarded card';box.appendChild(img)}
+function openStartingAllyMobile(card){
+ if(!card)return;
+ const overlay=document.getElementById('startingAllyMobileOverlay');
+ const image=document.getElementById('startingAllyMobileImage');
+ image.src=card.image||CARD_DB[card.name]?.image||'';
+ image.alt=card.name||'Starting Ally';
+ overlay.classList.add('open');
+}
+function closeStartingAllyMobile(event){
+ if(event&&event.target.closest('.allyPopup')&&event.target.tagName!=='BUTTON')return;
+ document.getElementById('startingAllyMobileOverlay').classList.remove('open');
+}
 function render(){renderCombatControls();if(lobbyMode==='local'&&phase==='game'){let current={P:JSON.parse(JSON.stringify(P)),turn};if(commBaseline){for(let p=1;p<=2;p++)for(let line of commActionDiff(commBaseline,current,p))appendComm('log',p,line);}commBaseline=current;}renderComm();let t=document.getElementById('table');t.innerHTML='';for(let p=1;p<3;p++){let s=P[p],q=document.createElement('section');q.className='player p'+p+(p!==viewPlayer?' opponent ':' ')+(phase=='game'&&turn==p?'active':'');q.innerHTML='<div class="head"><span class="badge '+(phase=='game'&&turn==p?'on':'')+'">PLAYER '+p+'</span><div class="char" title="Starting Ally — right-click for Frozen / Shield">'+(s.char&&s.char.image?'<img src="'+s.char.image+'" alt="'+s.char.name+'"><span>'+s.char.name+'</span>':'★ '+(s.char?s.char.name:'STARTING CHARACTER'))+'</div>'+(s.char?.name==='Luna Lovegood'&&!s.char.frozen&&phase==='game'&&onlineOwns(p)?'<button onclick="createLunaToken('+p+')" title="Resolve the Lesson cost manually">+ Thestral</button>':'')+'<div class="playerLife"><button onclick="changePlayerLife('+p+',-1)">−</button><strong>♥ <span class="lifeValue">'+s.life+'</span></strong><button onclick="changePlayerLife('+p+',1)">+</button></div><div class="playerActions"><strong class="actionStatus">⚡ '+(s.actionsLeft??2)+' / 2 Actions</strong><button onclick="basicCast('+p+')" '+((phase!=='game'||p!==turn||(lobbyMode==='invite'&&onlineStarted&&p!==onlineRole))?'disabled':'')+' title="Spend 1 Action; apply Basic Cast damage manually">Basic Cast</button></div><span style="color:#929baa;font-size:11px">Main: '+s.main.length+' • Lessons: '+s.lessonDeck.length+'</span></div><div class="piles"><div class="pileRow"><div class="pileWrap"><div class="pile" id="main'+p+'"><img class="pileBack" src="'+BACKS.main+'"></div><div class="pileLabel">MAIN DECK<small>'+s.main.length+' cards</small></div></div><div class="pileWrap"><div class="pile lesson" id="lesson'+p+'"><img class="pileBack" src="'+BACKS.lesson+'"></div><div class="pileLabel">LESSON DECK<small>'+s.lessonDeck.length+' cards</small></div></div></div><div class="pileRow"><div class="pileWrap"><div class="pile" id="discard'+p+'"></div><div class="pileLabel">DISCARD<small>'+s.discard.length+' cards • Exiled: '+(s.exile||[]).length+'</small></div></div><div class="pileWrap"><div class="pile" id="ldiscard'+p+'"></div><div class="pileLabel">LESSON DISCARD<small>'+s.lessonDiscard.length+' cards</small></div></div></div></div><div class="center"><div class="zone play" id="play'+p+'"><span class="label">PLAY AREA — AUTO ARRANGE • DRAG TO MOVE</span></div><div class="zone lessons" id="lessons'+p+'"><span class="label">LESSON AREA</span></div><div class="hand" id="hand'+p+'"></div></div>';t.appendChild(q);renderDiscardTop(p,'discard',s.discard[s.discard.length-1]);renderDiscardTop(p,'ldiscard',s.lessonDiscard[s.lessonDiscard.length-1]);let charEl=q.querySelector('.char');if(charEl&&s.char){
  charEl.onmouseenter=e=>showZoom(s.char,e);charEl.onmouseleave=hideZoom;
+ charEl.addEventListener('click',e=>{
+  if(!window.matchMedia('(max-width:767px) and (orientation:portrait)').matches)return;
+  if(targetSelection)return;
+  e.stopPropagation();hideZoom();openStartingAllyMobile(s.char);
+ });
  const state=document.createElement('div');state.className='startingAllyStates';
  if(s.char.frozen){const tag=document.createElement('span');tag.className='frozen';tag.textContent='❄ Frozen';state.appendChild(tag)}
  if(s.char.shield){const tag=document.createElement('span');tag.className='shield';tag.textContent='🛡 Shield';state.appendChild(tag)}
