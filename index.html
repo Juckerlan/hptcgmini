@@ -420,13 +420,7 @@
 /* V1.125: allow board targeting while the Spell Chain stays pending. */
 #spellOverlay.pointing{display:none!important}
 </style>
-<style id="allyActivationV127">
-#game .allyActivatedBadge{position:absolute;top:4px;left:50%;transform:translateX(-50%);background:#a51e28;color:#fff;border:1px solid #ed5960;border-radius:4px;padding:3px 6px;font:700 10px system-ui;letter-spacing:.08em;z-index:8;pointer-events:none;white-space:nowrap}
-#game .startingAllyActivate{position:relative;z-index:5;font-size:11px;padding:3px 7px;background:#533d60;color:white;border:1px solid #9b7eae;border-radius:4px;cursor:pointer}
-#game .startingAllyActivate:disabled{background:#851e2a;border-color:#b83c4a;cursor:default}
-#game .card .autoAttackBtn:disabled{background:#851e2a;opacity:1;cursor:default}
-</style>
-</head><body><audio id="gameplayBackgroundMusic" src="backgrounds/back_music.mp3" preload="none" loop playsinline></audio><div id="home" class="home"><img class="landingSnitch" src="backgrounds/snitch.gif" alt="" aria-hidden="true" onerror="this.style.display='none'"><div class="homeBox"><h1 class="homeTitle"><img src="backgrounds/hpmini_title.png" alt="Pocket TCG Simulator" onerror="this.style.display='none';this.parentNode.appendChild(document.createTextNode('Pocket TCG Simulator'))"></h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div><div class="landingVersion">Pocket Magic Awakened · v1.129</div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
+</head><body><audio id="gameplayBackgroundMusic" src="backgrounds/back_music.mp3" preload="none" loop playsinline></audio><div id="home" class="home"><img class="landingSnitch" src="backgrounds/snitch.gif" alt="" aria-hidden="true" onerror="this.style.display='none'"><div class="homeBox"><h1 class="homeTitle"><img src="backgrounds/hpmini_title.png" alt="Pocket TCG Simulator" onerror="this.style.display='none';this.parentNode.appendChild(document.createTextNode('Pocket TCG Simulator'))"></h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div><div class="landingVersion">Pocket Magic Awakened · v1.130</div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
 <div class="rulesBar"><h2>📖 Official Game Guide</h2><span style="flex:1"></span><button onclick="showHome()">← Back to Menu</button></div>
 <div class="rulesLayout"><nav class="rulesNav" aria-label="Rulebook sections">
 <a href="#rules-overview">Overview</a><a href="#rules-decks">Deck Building</a><a href="#rules-setup">Setup & Mulligan</a><a href="#rules-turn">Turn Structure</a><a href="#rules-actions">Actions & Lessons</a><a href="#rules-cards">Card Types</a><a href="#rules-spells">Spell Chains</a><a href="#rules-creatures">Creatures & Damage</a><a href="#rules-keywords">Keywords</a><a href="#rules-tokens">Tokens</a><a href="#rules-online">Online & Local Play</a><a href="#rules-reference">Quick Reference</a>
@@ -1251,21 +1245,10 @@ function renderCombatControls(){
  bar.querySelector('button').disabled=lobbyMode==='invite'&&turn!==onlineRole;
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape')targetCancel()});
-function markAllyActivated(p,cardId=null){
- if(phase!=='game'||!onlineOwns(p))return;
- const c=cardId===null?P[p]?.char:locate(p,cardId)?.c;
- if(!c||c.type!=='Ally')return;
- if(c.activatedTurn===P[p].turnSerial){toast('Already activated this turn.');return;}
- pushHistory();c.activatedTurn=P[p].turnSerial;render();toast(c.name+' activated (indicator only).');
-}
 function makeCard(c,p,z){let x=document.createElement('div');let hidden=z==='handHidden';x.className='card'+(hidden?' back':(c.image?' hasImage':'')+(c.face?'':' back')+(c.tapped?' tapped':'')+(z=='mull'&&P[p].mull.includes(c.id)?' selected':''));x.dataset.id=c.id;x.dataset.player=p;if(opponentFlashTimers.has(p+'-'+c.id))x.classList.add('opponentMarked');x.draggable=!hidden&&onlineOwns(p);if(hidden){x.innerHTML='<img class="cardBackImage" src="'+BACKS.main+'"><div class="name backFallback">CARD BACK</div>';let bi=x.querySelector('.cardBackImage');if(bi)bi.onerror=()=>{bi.style.display='none';let f=x.querySelector('.backFallback');if(f)f.style.display='block'};return x}let img=c.image?'<img class="cardImage" src="'+c.image+'" draggable="false">':'';x.innerHTML=c.face?img+'<div class="cost">'+c.cost+'</div><div class="state">'+(c.frozen?'<span class="frozen">❄ Frozen</span>':'')+(c.shield?'<span class="shield">🛡 Shield</span>':'')+'</div>'+(c.image?'':'<div class="name">'+c.name+'</div><div class="type">'+c.type+'</div>')+(c.life!==null&&c.type==='Creature'?'<div class="life">♥ '+c.life+'</div>':'')+(z==='play'&&printedCountdown(c)!==null?'<div class="countdownBadge">⏳ '+Math.max(0,(c.countdownLeft??(printedCountdown(c)+1))-1)+'</div>':'')+(c.counter?'<div class="counter">'+(c.counter>0?'+':'')+c.counter+'</div>':''):'<img class="cardBackImage" src="'+(c.type==='Lesson'?BACKS.lesson:BACKS.main)+'"><div class="name backFallback">CARD BACK</div>';if(!c.face){let bi=x.querySelector('.cardBackImage');if(bi)bi.onerror=()=>{bi.style.display='none';let f=x.querySelector('.backFallback');if(f)f.style.display='block'}}x.ondragstart=e=>{if(!onlineCanPlay(p)){e.preventDefault();return}hideZoom();sel={p,id:c.id};e.dataTransfer.setData('card',c.id+'|'+p)};x.ondragend=()=>hideZoom();if(z==='play'){x.ondragover=e=>e.preventDefault();x.ondrop=e=>{e.preventDefault();e.stopPropagation();const parts=e.dataTransfer.getData('card').split('|');if(+parts[1]!==p)return;const moving=locate(p,+parts[0]);if(!moving)return;if(moving.a===P[p].hand&&isSpellCard(moving.c)){spellChainCast(p,moving.c.id);return;}if(spellChainActive()){toast('Resolve the spell chain first.');return;}if(moving.a===P[p].hand&&P[p].combatStep==='combat'){toast('Finish Combat before playing cards.');return;}if(moving.a===P[p].play){reorderPlayCard(p,+parts[0],P[p].play.findIndex(v=>v.id===c.id));}else{if(phase==='game')pushHistory();moving.a.splice(moving.k,1);positionNewPlayCard(p,moving.c);P[p].play.splice(P[p].play.findIndex(v=>v.id===c.id),0,moving.c);render();}};}x.ondblclick=()=>{if(!onlineCanPlay(p))return;c.tapped=!c.tapped;render()};x.oncontextmenu=e=>{e.preventDefault();if(!onlineCanPlay(p))return;sel={p,id:c.id};showMenu(e.clientX,e.clientY)};x.onmouseenter=e=>showZoom(c,e);x.onmouseleave=hideZoom;if(z=='mull')x.onclick=()=>toggleM(p,c.id);
  if((z==='play'||(z==='hand'&&isSpellCard(c)))){const point=document.createElement('button');point.className='autoAttackBtn effectPointBtn';point.textContent='🎯';point.title='Point this card effect (no automatic damage)';point.onclick=e=>{e.stopPropagation();startEffectPointer(p,c.id,c.name)};x.appendChild(point)}
  if(z==='play'&&c.type==='Creature'){
   const b=document.createElement('button');b.className='autoAttackBtn';b.textContent='⚔';b.title='Assign Creature combat damage automatically';b.onclick=e=>{e.stopPropagation();targetStart(p,c.id,cardAttack(c));};x.appendChild(b);
- }
- if(z==='play'&&c.type==='Ally'){
-  const b=document.createElement('button');b.className='autoAttackBtn';b.textContent=c.activatedTurn===P[p].turnSerial?'Activated':'Activate';b.title='Mark Ally as activated (indicator only)';b.disabled=c.activatedTurn===P[p].turnSerial;b.onclick=e=>{e.stopPropagation();markAllyActivated(p,c.id)};x.appendChild(b);
-  if(c.activatedTurn===P[p].turnSerial){const tag=document.createElement('span');tag.className='allyActivatedBadge';tag.textContent='ACTIVATED';x.appendChild(tag);}
  }
  x.addEventListener('click',e=>{if(targetSelection&&(targetSelection.mode==='signal'||p!==targetSelection.p)&&z==='play'&&(targetSelection.mode==='signal'||c.type==='Creature')){e.stopPropagation();targetPick(p,c.id);}},true);
  installOpponentClick(x,p,c,z);return x}
@@ -1308,11 +1291,6 @@ function render(){renderCombatControls();if(lobbyMode==='local'&&phase==='game')
  const state=document.createElement('div');state.className='startingAllyStates';
  if(s.char.frozen){const tag=document.createElement('span');tag.className='frozen';tag.textContent='❄ Frozen';state.appendChild(tag)}
  if(s.char.shield){const tag=document.createElement('span');tag.className='shield';tag.textContent='🛡 Shield';state.appendChild(tag)}
- if(phase==='game'){
-  const ab=document.createElement('button');ab.className='startingAllyActivate';ab.textContent=s.char.activatedTurn===s.turnSerial?'Activated':'Activate';ab.disabled=s.char.activatedTurn===s.turnSerial;
-  ab.onclick=e=>{e.stopPropagation();markAllyActivated(p)};charEl.appendChild(ab);
-  if(s.char.activatedTurn===s.turnSerial){const tag=document.createElement('span');tag.className='allyActivatedBadge';tag.textContent='ACTIVATED';state.appendChild(tag);}
- }
  charEl.appendChild(state);
  charEl.oncontextmenu=e=>{e.preventDefault();hideZoom();if(!onlineOwns(p)){toast('You can only control your own Starting Ally.');return;}showStartingAllyMenu(e.clientX,e.clientY,p)};
 }const playerHead=q.querySelector('.head');if(playerHead){playerHead.style.cursor='crosshair';playerHead.addEventListener('click',e=>{if(targetSelection&&(targetSelection.mode==='signal'||p!==targetSelection.p)){e.stopPropagation();targetPick(p);}},true);} 
