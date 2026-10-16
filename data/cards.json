@@ -192,7 +192,7 @@
     "type": "Spell",
     "domain": "Transfiguration",
     "cost": 3,
-    "effect": "Return up to 2 items you control to your hand.",
+    "effect": "Additional Cost — Discard a Lesson. Return up to 2 Items you control to your hand; if you paid the additional cost, return 2 Items your opponent controls instead.",
     "image": "cards/transfiguration/transf_carperetractum.png"
   },
   "Piertotum Locomotor": {
@@ -368,14 +368,14 @@
     "type": "Ally",
     "domain": "Quidditch",
     "cost": "-",
-    "effect": "When damage would be dealt to you or a Quidditch Creature you control, discard me to prevent that damage.",
+    "effect": "When any of the Quidditch Items you control are about to be destroyed, discard me instead to prevent it.",
     "image": "cards/quidditch/quidd_guardian.png"
   },
   "Memory Vial": {
     "type": "Item",
     "domain": "Potions",
     "cost": 3,
-    "effect": "Once per turn, you may discard a card from your hand to draw a Lesson.",
+    "effect": "Once per turn, you may discard a card from your hand to play a Lesson.",
     "image": "cards/potions/potinos_memoryvial.png"
   },
   "Weasley Fireworks": {
@@ -614,5 +614,33 @@
     "cost": 6,
     "effect": "Additional Cost — Sacrifice a Creature or Ally you control. Your opponent cannot win the game while your Health is 0 or less as long as this Item remains in play. Your opponent must destroy this Item to win the game.",
     "image": "cards/dark/dark_horrocrux.png"
+  },
+  "Legillimens": {
+    "type": "Spell",
+    "domain": "Transfiguration",
+    "cost": 3,
+    "effect": "Look at your opponent's hand. If there is any Spell, your opponent must discard a Lesson.",
+    "image": "cards/transfiguration/transf_legillimens.png"
+  },
+  "Scamander Suitcase": {
+    "type": "Item",
+    "domain": "Potions",
+    "cost": 4,
+    "effect": "Once per turn, when you look at the cards of your deck, you may reveal and put all the Creatures you see into your hand.",
+    "image": "cards/potions/potinos_suitcase.png"
+  },
+  "Watching the Game": {
+    "type": "Event",
+    "domain": "Quidditch",
+    "cost": 4,
+    "effect": "Your opponent shuffles their hand into their deck. Then your opponent draws 3.",
+    "image": "cards/quidditch/quidd_wtg.png"
+  },
+  "Fire Bolt": {
+    "type": "Item",
+    "domain": "Quidditch",
+    "cost": 4,
+    "effect": "When damage would be dealt to you or a Quidditch Creature you control, discard me to prevent that damage. When this card is discarded, draw 1.",
+    "image": "cards/quidditch/quidd_firebolt.png"
   }
 }
