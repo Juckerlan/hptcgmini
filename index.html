@@ -383,10 +383,13 @@
 </style>
 <style id="gameplayTextureV123">
 /* V1.123: gameplay-only textures. Keep the approved board geometry untouched. */
-/* V1.126: plain dark purple table surface, no image texture. */
+/* V1.129: repeating mosaic replaces the solid purple gameplay surface. */
 #game .table{
- background:#21182f!important;
- background-image:none!important;
+ background-color:#21182f!important;
+ background-image:url("backgrounds/back_mosaico.png")!important;
+ background-repeat:repeat!important;
+ background-size:auto!important;
+ background-position:top left!important;
 }
 #game .player .center .zone,
 #game .player .center .hand,
@@ -423,7 +426,7 @@
 #game .startingAllyActivate:disabled{background:#851e2a;border-color:#b83c4a;cursor:default}
 #game .card .autoAttackBtn:disabled{background:#851e2a;opacity:1;cursor:default}
 </style>
-</head><body><audio id="gameplayBackgroundMusic" src="backgrounds/back_music.mp3" preload="none" loop playsinline></audio><div id="home" class="home"><img class="landingSnitch" src="backgrounds/snitch.gif" alt="" aria-hidden="true" onerror="this.style.display='none'"><div class="homeBox"><h1 class="homeTitle"><img src="backgrounds/hpmini_title.png" alt="Pocket TCG Simulator" onerror="this.style.display='none';this.parentNode.appendChild(document.createTextNode('Pocket TCG Simulator'))"></h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div><div class="landingVersion">Pocket Magic Awakened · v1.128</div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
+</head><body><audio id="gameplayBackgroundMusic" src="backgrounds/back_music.mp3" preload="none" loop playsinline></audio><div id="home" class="home"><img class="landingSnitch" src="backgrounds/snitch.gif" alt="" aria-hidden="true" onerror="this.style.display='none'"><div class="homeBox"><h1 class="homeTitle"><img src="backgrounds/hpmini_title.png" alt="Pocket TCG Simulator" onerror="this.style.display='none';this.parentNode.appendChild(document.createTextNode('Pocket TCG Simulator'))"></h1><div class="homeActions"><button class="homeBtn" onclick="showPlay()">▶ Play</button><button class="homeBtn" onclick="showBuilder()">▦ Deck Builder</button><button class="homeBtn" onclick="showDatabase()">▤ Database</button><button class="homeBtn" onclick="showRules()">📖 Rules</button></div></div><div class="landingVersion">Pocket Magic Awakened · v1.129</div></div><div id="rules" class="rulesScreen screenHidden" aria-label="Game rules">
 <div class="rulesBar"><h2>📖 Official Game Guide</h2><span style="flex:1"></span><button onclick="showHome()">← Back to Menu</button></div>
 <div class="rulesLayout"><nav class="rulesNav" aria-label="Rulebook sections">
 <a href="#rules-overview">Overview</a><a href="#rules-decks">Deck Building</a><a href="#rules-setup">Setup & Mulligan</a><a href="#rules-turn">Turn Structure</a><a href="#rules-actions">Actions & Lessons</a><a href="#rules-cards">Card Types</a><a href="#rules-spells">Spell Chains</a><a href="#rules-creatures">Creatures & Damage</a><a href="#rules-keywords">Keywords</a><a href="#rules-tokens">Tokens</a><a href="#rules-online">Online & Local Play</a><a href="#rules-reference">Quick Reference</a>
