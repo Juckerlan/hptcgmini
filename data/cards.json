@@ -253,7 +253,7 @@
     "cost": 2,
     "health": 3,
     "damage": 1,
-    "effect": "When this deals damage to a Player, Freeze an opposing Creature.",
+    "effect": "When this enters play, Freeze an opposing Creature.",
     "image": "cards/creatures/creature_snowman.png"
   },
   "Firecrab": {
