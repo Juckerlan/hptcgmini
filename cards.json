@@ -253,7 +253,7 @@
     "cost": 2,
     "health": 3,
     "damage": 1,
-    "effect": "When this enters play, Freeze an opposing Creature.",
+    "effect": "When this enters play, Freeze an opposing target.",
     "image": "cards/creatures/creature_snowman.png"
   },
   "Firecrab": {
@@ -431,7 +431,7 @@
     "cost": 5,
     "health": 5,
     "damage": 3,
-    "effect": "Countdown 2: Freeze up to 3 targets.",
+    "effect": "When this deals damage to a player: Freeze an opposing target.",
     "image": "cards/creatures/creature_yeti.png"
   },
   "Orb of Water": {
@@ -614,6 +614,13 @@
     "cost": 6,
     "effect": "Additional Cost — Sacrifice a Creature or Ally you control. Your opponent cannot win the game while your Health is 0 or less as long as this Item remains in play. Your opponent must destroy this Item to win the game.",
     "image": "cards/dark/dark_horrocrux.png"
+  },
+  "Finite Incantatem": {
+    "type": "Ongoing Spell",
+    "domain": "Charms",
+    "cost": 4,
+    "effect": "Countdown 1: Destroy all Ongoing Spells and Dark Spells your opponent controls. Your opponent must discard a card to play a Lesson.",
+    "image": "cards/charms/charm_finite.png"
   },
   "Legillimens": {
     "type": "Spell",
