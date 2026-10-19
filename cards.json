@@ -702,5 +702,30 @@
     "damage": 3,
     "effect": "This cannot attack unless you control no other Creatures.",
     "image": "cards/creatures/creature_mtroll.png"
+  },
+  "Dementor": {
+    "type": "Creature",
+    "domain": "Dark Arts",
+    "cost": 3,
+    "health": 4,
+    "damage": 2,
+    "effect": "Whenever Dementor deals damage to the opposing player, it gains +1 Damage and +1 Health. Dementor can only be damaged by Spells.",
+    "image": "cards/dark/dark_dementor.png"
+  },
+  "Fwoopers": {
+    "type": "Creature",
+    "domain": "Neutral",
+    "cost": 3,
+    "health": 2,
+    "damage": 2,
+    "effect": "When this card is in play: The other player cannot play more than 1 creature per turn.",
+    "image": "cards/creatures/creature_fwoopers.png"
+  },
+  "Protego Diabolica": {
+    "type": "Dark Spell",
+    "domain": "Dark Arts",
+    "cost": 4,
+    "effect": "Countdown 3: Shield 2 to a target. When this Spell is discarded, deal 3 damage to each of your opponent valid targets in play.",
+    "image": "cards/dark/dark_protegod.png"
   }
 }
