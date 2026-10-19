@@ -684,5 +684,23 @@
     "cost": 5,
     "effect": "Countdown 2: Deal 2 damage to all creatures.",
     "image": "cards/transfiguration/transf_gubridian.png"
+  },
+  "Forest Troll": {
+    "type": "Creature",
+    "domain": "Neutral",
+    "cost": 4,
+    "health": 7,
+    "damage": 2,
+    "effect": "Forest Troll enters play Frozen.",
+    "image": "cards/creatures/creature_ftroll.png"
+  },
+  "Mountain Troll": {
+    "type": "Creature",
+    "domain": "Neutral",
+    "cost": 5,
+    "health": 8,
+    "damage": 3,
+    "effect": "This cannot attack unless you control no other Creatures.",
+    "image": "cards/creatures/creature_mtroll.png"
   }
 }
