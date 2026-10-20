@@ -745,5 +745,89 @@
     "image": "cards/tokens/token_sweeping.png",
     "token": true,
     "life": 4
+  },
+  "FiendFyre": {
+    "type": "Dark Spell",
+    "domain": "Dark Arts",
+    "cost": 4,
+    "effect": "Countdown 2: Deal 2 damage to a target. Each time this effect resolves, it deals 1 additional damage.",
+    "image": "cards/dark/dark_fiend.png"
+  },
+  "Avada Kedavra": {
+    "type": "Dark Spell",
+    "domain": "Dark Arts",
+    "cost": 6,
+    "effect": "Destroy a Creature or Ally. If this is the third time you have played Avada Kedavra this game, you may target a Player instead, if this resolves targeting the player you win the game.",
+    "image": "cards/dark/dark_avada.png"
+  },
+  "Murtlap": {
+    "type": "Creature",
+    "domain": "Neutral",
+    "cost": 2,
+    "health": 2,
+    "life": 2,
+    "damage": 2,
+    "effect": "When this enters play: Destroy an item your opponent controls.",
+    "image": "cards/creatures/creature_murtlap.png"
+  },
+  "Centaur": {
+    "type": "Creature",
+    "domain": "Neutral",
+    "cost": 4,
+    "health": 4,
+    "life": 4,
+    "damage": 3,
+    "effect": "While you control no other Creatures than Centaurs: This card gets +2 Damage.",
+    "image": "cards/creatures/creature_centaur.png"
+  },
+  "Hinkypunk": {
+    "type": "Creature",
+    "domain": "Neutral",
+    "cost": 2,
+    "health": 1,
+    "life": 1,
+    "damage": 1,
+    "effect": "When this is discarted, you may return a creature from the discard pile to your hand.",
+    "image": "cards/creatures/creature_hinkypunk.png"
+  },
+  "Manticore": {
+    "type": "Creature",
+    "domain": "Neutral",
+    "cost": 3,
+    "health": 3,
+    "life": 3,
+    "damage": 1,
+    "effect": "When this enters play, return a lesson from your discard pile to your board.",
+    "image": "cards/creatures/creature_manticore.png"
+  },
+  "Thunderbird": {
+    "type": "Creature",
+    "domain": "Neutral",
+    "cost": 5,
+    "health": 4,
+    "life": 4,
+    "damage": 2,
+    "effect": "When this enters play: Shield 2 to all your valid targets.",
+    "image": "cards/creatures/creature_thunderbird.png"
+  },
+  "Demiguise": {
+    "type": "Creature",
+    "domain": "Neutral",
+    "cost": 4,
+    "health": 3,
+    "life": 3,
+    "damage": 5,
+    "effect": "This card cannot be targeted by other creatures.",
+    "image": "cards/creatures/creature_demiguise.png"
+  },
+  "Ashwinder": {
+    "type": "Creature",
+    "domain": "Neutral",
+    "cost": 3,
+    "health": 3,
+    "life": 3,
+    "damage": 2,
+    "effect": "The first spell your play each turn deals 1 additional damage.",
+    "image": "cards/creatures/creature_ashwinder.png"
   }
 }
