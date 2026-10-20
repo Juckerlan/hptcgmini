@@ -829,5 +829,23 @@
     "damage": 2,
     "effect": "The first spell your play each turn deals 1 additional damage.",
     "image": "cards/creatures/creature_ashwinder.png"
+  },
+  "Sirius Black": {
+    "type": "Ally",
+    "domain": "Neutral",
+    "cost": 0,
+    "effect": "When you control a creature with 5 health or more you may freeze this card to play a Canuto token.",
+    "image": "cards/allies/char_sirius.png"
+  },
+  "Canuto": {
+    "type": "Creature",
+    "domain": "Neutral",
+    "cost": 0,
+    "health": 3,
+    "life": 3,
+    "damage": 1,
+    "effect": "While this card is in play you cannot play spells and your starting ally remains freeze. All your creatures deals 2 additional damage each turn.",
+    "image": "cards/tokens/token_canuto.png",
+    "token": true
   }
 }
