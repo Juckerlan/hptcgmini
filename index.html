@@ -2007,8 +2007,8 @@ function autoTargetList(scope='any',controller,opponentOnly=false){
  const out=[];
  for(let p=1;p<=2;p++){
   if(opponentOnly&&p===controller)continue;
-  if(scope==='player'){if(!protectedStartingAllyV212(p,controller))out.push({p,kind:'starting',id:null});continue;}
-  if((scope==='starting'||scope==='any'||scope==='creatureOrPlayer'||scope==='allyOrStarting')&&!protectedStartingAllyV212(p,controller))out.push({p,kind:'starting',id:null});
+  if(scope==='player'){if(!protectedStartingAllyV212(p,controller)&&!(p!==controller&&P[p].play.some(c=>c.name==='Nebulus'&&!c.frozen)))out.push({p,kind:'starting',id:null});continue;}
+  if((scope==='starting'||scope==='any'||scope==='creatureOrPlayer'||scope==='allyOrStarting')&&!protectedStartingAllyV212(p,controller)&&!(p!==controller&&P[p].play.some(c=>c.name==='Nebulus'&&!c.frozen)))out.push({p,kind:'starting',id:null});
   for(const c of P[p].play){
    if(scope==='starting'||scope==='player')continue;
    if(c.type==='Creature')out.push(autoRef(p,c,'creature'));
@@ -2282,6 +2282,45 @@ async function resolveCardEffectV228(p,id){
  if(idx>=0){const finished=P[p].play.splice(idx,1)[0];putInOwnersDiscardV191(finished,p);}
  render();if(lobbyMode==='invite'&&onlineStarted)onlinePublish('state');
 }
+// v1.245 — choices after Spell Chain approval, never while the Spell awaits response.
+async function resolveSpellV245(p,id){
+ if(!autoCanControl(p))return;
+ const spell=P[p].play.find(x=>x.id===id);if(!spell)return;
+ const foe=3-p;
+ if(spell.name==='Legillimens'){
+  // Looking at the opposing hand is private: the controller sees a local selection;
+  // only whether a Spell exists is shared in the state/log.
+  const spells=P[foe].hand.filter(c=>/Spell$/.test(c.type));
+  if(P[foe].hand.length){
+   await queueCardChoiceV222('Legillimens — Opponent Hand','Inspect the cards. Close this window to continue.',P[foe].hand);
+  }
+  if(!autoCanControl(p)||!P[p].play.some(c=>c.id===id))return;
+  if(spells.length&&P[foe].lessons.length){
+   // Opponent chooses the Lesson in the local game; online uses the last Lesson
+   // to avoid exposing an opponent-only decision modal to the wrong client.
+   const lesson=P[foe].lessons.pop();P[foe].lessonDiscard.push(lesson);
+   autoLog(p,'Legillimens: opponent discarded a Lesson ('+lesson.name+').');
+  }else autoLog(p,'Legillimens: '+(spells.length?'opponent has no Lesson to discard.':'no Spell found in opponent hand.'));
+ }else if(spell.name==='Petrificus Totalus'){
+  const targets=[1,2].flatMap(side=>P[side].play.filter(x=>x.type==='Creature'||x.type==='Ally').map(x=>({...x,id:side+':'+x.id})))
+    .concat([1,2].filter(side=>P[side].char&&side!==p).map(side=>({...P[side].char,id:side+':starting'})));
+  if(targets.length){
+   const pick=await queueCardChoiceV222('Petrificus Totalus — Choose a Target','Choose an Ally to destroy or a Creature to Freeze.',targets);
+   if(pick!==null&&autoCanControl(p)){
+    const [sideStr,idStr]=String(pick).split(':');const side=Number(sideStr);
+    if(side===1||side===2){
+     const idx=P[side].play.findIndex(c=>String(c.id)===idStr);
+     if(idx>=0){const c=P[side].play[idx];if(c.type==='Creature'){autoFreeze({p:side,kind:'creature',id:c.id});autoLog(p,'Petrificus Totalus froze '+c.name+'.');}
+       else if(c.type==='Ally'){P[side].play.splice(idx,1);putInOwnersDiscardV191(c,side);autoLog(p,'Petrificus Totalus destroyed '+c.name+'.');}}
+     // Starting Ally cannot be destroyed as an ordinary Ally.
+    }
+   }
+  }
+ }
+ const ix=P[p].play.findIndex(c=>c.id===id);
+ if(ix>=0)putInOwnersDiscardV191(P[p].play.splice(ix,1)[0],p);
+ commitCardChoiceV230(p);
+}
 function triggerPlayedFromHandV217(p){
  if(phase!=='game'||!autoCanControl(p))return;
  for(const c of P[p].play.filter(c=>c.name==='Kelpie'&&!c.frozen))queueJinxDamageV217(p,'Kelpie',c.id);
@@ -2305,6 +2344,7 @@ function activateOngoingV169(p,id){
  if(c.abilityUsedTurn===P[p].turnSerial){toast('Already activated this turn.');return;}
  const spec=autoBuildSpec(p,c,{source:'field',shouldDiscard:false,expireAfter:false});
  pushHistory();c.abilityUsedTurn=P[p].turnSerial;
+ abilitySpotlightV245(p,c);
  if(spec)autoOpen(spec);
  else toast(c.name+': activate its printed effect manually.');
  document.getElementById('menu').style.display='none';render();autoRenderModal();
@@ -2318,6 +2358,7 @@ function autoStartFromCast(p,c){
   if(spec)return autoOpen(spec);
   toast(c.name+': resolve its On Play effect manually.');return true;
  }
+ if(['Legillimens','Petrificus Totalus'].includes(c.name)){c.effectPendingV245=true;return true;}
  if(c.name==='Carpe Retractum'||c.name==='Wingardium Leviosa'){c.effectPendingV244=true;return true;}
  if(c.name==='Bat Bogey Hex'){c.batBogeyPendingV231=true;return true;}
  if(c.name==='Priori Incantatem'){c.prioriPendingV227=true;return true;}
@@ -2342,7 +2383,7 @@ function autoFinish(){
  if(s.shouldDiscard||s.expireAfter){const board=P[s.player].play;const i=board.findIndex(c=>c.id===s.cardId);if(i>=0){const c=board.splice(i,1)[0];c.tapped=false;if(!c.isToken)P[s.player][c.castFromDiscard?'exile':'discard'].push(c);}}
  autoEngine.pending=null;autoEngine.minimized=false;autoCleanLinked();
  if(autoEngine.queue.length){autoOpen(autoEngine.queue.shift());}
- else if(autoEngine.turnSwitchPending){autoEngine.turnSwitchPending=false;autoCompleteEndTurn();}
+ else if(autoEngine.turnSwitchPending&&!autoEngine.felixPendingV245){autoEngine.turnSwitchPending=false;autoCompleteEndTurn();}
  else{render();}
 }
 function autoEligible(s,step){
@@ -2564,7 +2605,7 @@ async function activateItemV230(p,id){
   picks.push(chosen);
  }
  if(!picks.every(k=>P[p].hand.some(x=>x.id===k)))return;
- pushHistory();c.abilityUsedTurn=P[p].turnSerial;
+ pushHistory();c.abilityUsedTurn=P[p].turnSerial;abilitySpotlightV245(p,c);
  for(const k of picks){const ix=P[p].hand.findIndex(x=>x.id===k);if(ix<0)return;const card=P[p].hand.splice(ix,1)[0];if(c.name==='Portkey')P[p].main.push(card);else putInOwnersDiscardV191(card,p);}
  if(c.name==='Portkey'){sh(P[p].main);draw(p,1);}
  else if(c.name==='Time Turner')P[p].actionsLeft=(Number(P[p].actionsLeft)||0)+1;
@@ -2598,10 +2639,10 @@ function autoActivateField(p,id){
  if(!active){toast('This card triggers automatically on its appropriate event.');return;}
  if(c.frozen){toast('Frozen cards cannot activate abilities.');return;}
  if(c.abilityUsedTurn===P[p].turnSerial){toast('Ability already used this turn.');return;}
- pushHistory();c.abilityUsedTurn=P[p].turnSerial;
+ pushHistory();c.abilityUsedTurn=P[p].turnSerial;abilitySpotlightV245(p,c);
  autoOpen(autoBuildSpec(p,c,{source:'field',shouldDiscard:false}));render();
 }
-// v1.244 — One-shot Item-return spells. Selection is controller-only; state is published once resolved.
+// v1.245 — One-shot Item-return spells. Selection is controller-only; state is published once resolved.
 function returnItemFromPlayV244(p,side,cardId){
  const at=P[side].play.findIndex(c=>c.id===cardId&&c.type==='Item');if(at<0)return false;
  const item=P[side].play.splice(at,1)[0],owner=originalOwnerV191(item,side);
@@ -2678,6 +2719,7 @@ function autoCheckNewEntrants(){
   if(!autoCanControl(p))continue;
   if(c.name==='Bat Bogey Hex'&&c.batBogeyPendingV231&&!c.batBogeyResolvingV231){c.batBogeyResolvingV231=true;queueMicrotask(()=>resolveBatBogeyV231(p,c.id));}
   if(c.name==='Priori Incantatem'&&c.prioriPendingV227){c.prioriPendingV227=false;queueMicrotask(()=>resolvePrioriV227(p,c.id));}
+  if(c.effectPendingV245){c.effectPendingV245=false;queueMicrotask(()=>resolveSpellV245(p,c.id));}
   if(c.effectPendingV244){c.effectPendingV244=false;queueMicrotask(()=>resolveReturnSpellV244(p,c.id));}
   if(c.effectPendingV228){c.effectPendingV228=false;queueMicrotask(()=>resolveCardEffectV228(p,c.id));}
   if(c.expectoPendingV230){c.expectoPendingV230=false;queueMicrotask(()=>expectoPatronusV230(p,c.id));}
@@ -2746,6 +2788,26 @@ function presentDiscardV238(p){
  }
  discardDefeatedCreaturesV159();autoLog(p,'Prantastic Present: 2 damage to all opposing targets.');commitCardChoiceV230(p);flushSpellImpactV162();
 }
+async function resolveFelixV245(p){
+ if(!autoCanControl(p))return;
+ try{
+ const top=P[p].main.slice(-3);
+ if(!top.length){autoLog(p,'Felix Felicis: deck is empty.');return;}
+ const spellChoices=top.filter(c=>/Spell$/.test(c.type));
+ const pick=await queueCardChoiceV222('Felix Felicis — Top 3','Choose a Spell to play for no Lesson cost, or skip.',spellChoices);
+ if(!autoCanControl(p)||pick===null)return;
+ const idx=P[p].main.findIndex(c=>c.id===pick);
+ if(idx<0||!top.some(c=>c.id===pick))return;
+ const chosen=P[p].main.splice(idx,1)[0];
+ pushHistory();positionNewPlayCard(p,chosen);initializeCountdown(chosen);P[p].play.push(chosen);
+ autoLog(p,'Felix Felicis played '+chosen.name+' without a Lesson cost.');
+ // Reuse normal on-resolution dispatch (including pending selectors).
+ autoStartFromCast(p,chosen);commitCardChoiceV230(p);
+ }finally{
+  autoEngine.felixPendingV245=Math.max(0,(autoEngine.felixPendingV245||0)-1);
+  if(autoEngine.turnSwitchPending&&!autoEngine.felixPendingV245&&!autoEngine.pending&&!autoEngine.queue.length){autoEngine.turnSwitchPending=false;autoCompleteEndTurn();}
+ }
+}
 function autoEndCountdown(p){
  // Countdown expiration triggers the explicit V1.239 effects before the turn advances.
  const expired=[];
@@ -2755,6 +2817,7 @@ function autoEndCountdown(p){
   if(c.countdownLeft>0)continue;
   if(c.name==='Orb of Water'&&Array.isArray(c.orbRefsV169)){const burst=autoBuildSpec(p,c,{source:'discard',expireAfter:false});if(burst){burst.steps=[{type:'orbBurst'}];burst.orbRefs=c.orbRefsV169;autoEnqueue(burst);}}
   if(c.name==='Prantastic Present'&&autoCanControl(p))draw(3-p,1);
+  if(c.name==='Felix Felicis'&&autoCanControl(p)){autoEngine.felixPendingV245=(autoEngine.felixPendingV245||0)+1;queueMicrotask(()=>resolveFelixV245(p));}
   if(['Crucio','Essence of Dittany'].includes(c.name)&&autoCanControl(p)){const spec=autoBuildSpec(p,c,{source:'countdown',shouldDiscard:false});if(spec)autoEnqueue(spec);}
   P[p].play.splice(i,1);c.countdownLeft=null;c.tapped=false;
   if(c.name==='Protego Diabolica'&&autoCanControl(p))queueMicrotask(()=>triggerProtegoDiabolicaDiscardV194(p,c));
@@ -2762,7 +2825,7 @@ function autoEndCountdown(p){
   expired.unshift(c);
  }
  if(expired.length){showCountdownExpired(expired);autoCleanLinked();}
- return !!autoEngine.pending;
+ return !!autoEngine.pending||!!autoEngine.felixPendingV245;
 }
 function autoCompleteEndTurn(){
  const leaving=turn;
@@ -2977,7 +3040,7 @@ function showSpotlightV239(data){
  if(!data||typeof data.image!=='string'||!data.image||typeof data.name!=='string')return;
  const el=spotlightUiV239(),img=el.querySelector('img');
  clearTimeout(spotlightTimerV239);el.classList.remove('active');
- // v1.244: Restart the IMAGE animation too. Its previous `animation-fill-mode: both`
+ // v1.245: Restart the IMAGE animation too. Its previous `animation-fill-mode: both`
  // otherwise retains opacity:0 after the first card even if the overlay reopens.
  img.style.animation='none';img.style.opacity='1';
  img.src=data.image;img.alt=data.name;el.style.setProperty('--spot-color',spotlightColorsV239[data.domain]||spotlightColorsV239.Neutral);
@@ -3000,11 +3063,17 @@ function sendSpotlightV239(p,c){
  if(lobbyMode!=='invite'||!onlineStarted||!onlineConnected||onlineRole!==p)return;
  onlineSend('visual-card-v239',{name:c.name,image:c.image,domain:d.domain||c.domain||'Neutral',sourcePlayer:p});
 }
-// v1.244 — ally ability display is cosmetic; independent of game resolution.
+// v1.245 — ally ability display is cosmetic; independent of game resolution.
 function spotlightAllyAbilityV242(p,name){
  const ally=P[p]?.char;
  if(!ally||ally.name!==name||!autoCanControl(p))return;
  sendSpotlightV239(p,ally);
+}
+// v1.245 — purely cosmetic ability cue, reuse established validated card Spotlight.
+function abilitySpotlightV245(p,c){
+ if(!c||!CARD_DB[c.name]||!autoCanControl(p))return;
+ sendSpotlightV239(p,c);
+ autoLog(p,c.name+': activated an ability.');
 }
 function sendDeckActivityV239(p,on,mode='search'){
  if(lobbyMode!=='invite'||!onlineStarted||!onlineConnected||onlineApplying||onlineRole!==p)return;
@@ -3312,7 +3381,7 @@ function targetResolve(victim,cardId=null){
  if(victim!==3-t.p){toast('Select an opposing target.');return false;}
  let label='Player '+victim+' Health';
  if(t.mode==='combat'&&!blockTargetAllowedV232(t.p,{p:victim,kind:cardId===null?'starting':'creature',id:cardId})){toast('Block: assign damage to a Creature with Block first.');return false;}
- if(cardId===null&&protectedStartingAllyV212(victim,t.p)){toast("That Starting Ally cannot be targeted while Canuto or Lupin's Werewolf Form is in play.");return false;}
+ if(cardId===null&&(protectedStartingAllyV212(victim,t.p)||(victim!==t.p&&P[victim].play.some(c=>c.name==='Nebulus'&&!c.frozen)))){toast("That Starting Ally cannot be targeted while Canuto or Lupin's Werewolf Form is in play.");return false;}
  if(cardId!==null){const g=locate(victim,cardId);if(!g||g.a!==P[victim].play||g.c.type!=='Creature')return false;if(t.mode==='combat'&&g.c.name==='Demiguise'){toast('Demiguise cannot be targeted by other Creatures.');return false;}label=g.c.name;}
  pushHistory();
  if(t.mode==='combat'){
@@ -3351,7 +3420,7 @@ async function activateBeater(p,cardId){
  const hi=P[p].hand.findIndex(c=>c.id===discardId);
  const itemPos=P[p].play.findIndex(c=>c.id===itemId);
  if(hi<0||itemPos<0)return;
- pushHistory();
+ pushHistory();abilitySpotlightV245(p,available());
  P[p].discard.push(P[p].hand.splice(hi,1)[0]);
  const item=P[p].play.splice(itemPos,1)[0];
  delete item.autoEntered;
@@ -3372,7 +3441,7 @@ function startBludgerDamage(p,cardId,returned=false){
 function resolveBludger(victim,cardId=null){
  const t=targetSelection;if(!t||t.mode!=='bludger'||victim!==3-t.p)return false;
  const c=(t.fromHand?P[t.p].hand:P[t.p].play).find(x=>x.id===t.sourceId);if(!c)return false;
- let label='Player '+victim+' Health';if(!blockTargetAllowedV232(t.p,{p:victim,kind:cardId===null?'starting':'creature',id:cardId})){toast('Block: assign damage to a Creature with Block first.');return false;}if(cardId===null&&protectedStartingAllyV212(victim,t.p)){toast("That Starting Ally cannot be targeted while Canuto or Lupin's Werewolf Form is in play.");return false;}if(cardId!==null){const g=locate(victim,cardId);if(!g||g.a!==P[victim].play||g.c.type!=='Creature')return false;label=g.c.name;}
+ let label='Player '+victim+' Health';if(!blockTargetAllowedV232(t.p,{p:victim,kind:cardId===null?'starting':'creature',id:cardId})){toast('Block: assign damage to a Creature with Block first.');return false;}if(cardId===null&&(protectedStartingAllyV212(victim,t.p)||(victim!==t.p&&P[victim].play.some(c=>c.name==='Nebulus'&&!c.frozen)))){toast("That Starting Ally cannot be targeted while Canuto or Lupin's Werewolf Form is in play.");return false;}if(cardId!==null){const g=locate(victim,cardId);if(!g||g.a!==P[victim].play||g.c.type!=='Creature')return false;label=g.c.name;}
  pushHistory();const actual=autoDamage(t.p,{p:victim,kind:cardId===null?'starting':'creature',id:cardId},2,'Bludger');
  const payload={sourcePlayer:t.p,sourceId:t.sourceId,sourceName:c.name,sourceStack:false,targetPlayer:victim,targetId:cardId,targetName:label};
  targetCancel();render();showEffectPointer(payload);
@@ -3940,7 +4009,7 @@ function startingAllyStatus(status){
  render();
  toast(P[p].char.name+' '+status+(P[p].char[status]?' applied.':' removed.'));
 }
-// v1.244 — Draco: discard one of your hand cards, then choose from the enemy hand.
+// v1.245 — Draco: discard one of your hand cards, then choose from the enemy hand.
 async function activateDracoV242(p){
  document.getElementById('startingAllyMenu').style.display='none';
  const s=P[p],foe=P[3-p];
