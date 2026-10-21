@@ -1842,7 +1842,7 @@ async function spellChainCast(p,cardId,quick=false){
  if(isResponse&&!quickResponseLessonOptionsV179(p,found.c).length){
   toast('A Quick Spell response requires discarding a Lesson of the same domain.');return false;
  }
- const hasOptionalCost=name==='Expelliarmus'||name==='Carpe Retractum';
+ const hasOptionalCost=name==='Expelliarmus'||name==='Carpe Retractum'||name==='Wingardium Leviosa';
  if(!isResponse&&!hasOptionalCost)return spellChainCastCoreV178(p,cardId,quick);
  costDecisionBusyV178=true;
  try{
@@ -1861,6 +1861,9 @@ async function spellChainCast(p,cardId,quick=false){
    if(choice===null)return false;
    extra=choice==='yes';
    if(extra&&!P[p].lessons.length){toast('You need a Lesson in play.');return false;}
+  }else if(name==='Wingardium Leviosa'){
+   const choice=await costDialogV178({title:'Wingardium Leviosa',description:'Return one of your Items, optionally discard a Lesson to also recover an Item from your discard.',choices:[{label:'No additional cost',value:'no'},{label:'Discard 1 Lesson — recover an Item from discard',value:'yes'}]});
+   if(choice===null)return false;extra=choice==='yes';
   }else if(name==='Carpe Retractum'&&P[p].lessons.length){
    const choice=await costDialogV178({title:'Carpe Retractum',description:'Return up to 2 of your Items, or discard 1 Lesson to return 2 opposing Items.',choices:[{label:'Return my Items • No additional cost',value:'no'},{label:'Discard 1 Lesson • Return opposing Items',value:'yes'}]});
    if(choice===null)return false;
@@ -1899,17 +1902,22 @@ function spellChainCastCoreV178(p,cardId,quick=false,styledCostV178=null){
   expExtra=styledCostV178?styledCostV178.extra:confirm('Expelliarmus — Optional Additional Cost: discard 1 Lesson to destroy an enemy Ongoing Spell or Item after dealing 2 damage. Pay this cost?');
   if(expExtra&&!P[p].lessons.length){toast('You need a Lesson in play to pay the optional cost.');return false;}
  }
- let carpeLessonIndex=-1;
+ let carpeLessonIndex=-1,wingLessonIndex=-1;
  if(f.c.name==='Carpe Retractum'&&P[p].lessons.length){
-  const useExtra=styledCostV178?styledCostV178.extra:confirm('Carpe Retractum — Discard a Lesson to return 2 opponent Items instead of up to 2 of your own?');
-  if(useExtra){
-   const lessons=P[p].lessons;
-   const choice=prompt('Choose a Lesson to discard for Carpe Retractum:\\n'+lessons.map((x,i)=>(i+1)+'. '+x.name).join('\\n'),'1');
-   if(choice===null)return false;
-   carpeLessonIndex=Number(choice)-1;
-   if(!Number.isInteger(carpeLessonIndex)||carpeLessonIndex<0||carpeLessonIndex>=lessons.length){toast('Invalid Lesson selection.');return false;}
+  if(styledCostV178){if(styledCostV178.extra)carpeLessonIndex=styledCostV178.lessonIndex;}
+  else if(confirm('Carpe Retractum: discard a Lesson to return opposing Items instead?')){
+   const input=prompt('Select a Lesson number to discard: '+P[p].lessons.map((l,i)=>(i+1)+'. '+l.name).join(' / '),'1');if(input===null)return false;
+   carpeLessonIndex=Number(input)-1;
   }
  }
+ if(f.c.name==='Wingardium Leviosa'){
+  if(styledCostV178){if(styledCostV178.extra)wingLessonIndex=styledCostV178.lessonIndex;}
+  else if(confirm('Wingardium Leviosa: discard a Lesson to also recover an Item from discard?')){
+   const input=prompt('Select a Lesson number to discard: '+P[p].lessons.map((l,i)=>(i+1)+'. '+l.name).join(' / '),'1');if(input===null)return false;
+   wingLessonIndex=Number(input)-1;
+  }
+ }
+ if([carpeLessonIndex,wingLessonIndex].some(ix=>ix>=P[p].lessons.length||ix< -1)){toast('Invalid additional Lesson cost.');return false;}
  pushHistory();const c=f.c;f.a.splice(f.k,1);if(!payDarkArtsCosts(p,c)){f.a.splice(f.k,0,c);return false;}if(expExtra){
   const lessons=P[p].lessons;
   const input=styledCostV178?String(styledCostV178.lessonIndex+1):prompt('Choose a Lesson to discard for Expelliarmus:\n'+lessons.map((x,i)=>(i+1)+'. '+x.name).join('\n'),'1');
@@ -1918,6 +1926,9 @@ function spellChainCastCoreV178(p,cardId,quick=false,styledCostV178=null){
   P[p].lessonDiscard.push(lessons.splice(ix,1)[0]);
  }
  if(carpeLessonIndex>=0)P[p].lessonDiscard.push(P[p].lessons.splice(carpeLessonIndex,1)[0]);
+ if(wingLessonIndex>=0)P[p].lessonDiscard.push(P[p].lessons.splice(wingLessonIndex,1)[0]);
+ c.carpeExtraV244=carpeLessonIndex>=0;
+ c.wingExtraV244=wingLessonIndex>=0;
  if(isResponseV179){
   const lessonIndexV179=P[p].lessons.findIndex(l=>l.id===responseLessonIdV179);
   if(lessonIndexV179<0){toast('Quick Spell response Lesson is no longer available.');f.a.splice(f.k,0,c);return false;}
@@ -1965,7 +1976,7 @@ const AUTO_DAMAGE_SPELLS={
  'Yeti':{steps:[{type:'freeze',scope:'creatureOrPlayer',onlyOpponent:true}]},
  'Orb of Water':{steps:[{type:'orb',scope:'any',max:3}]},
  'Slug Vomiting Charm':{steps:[{type:'freeze',scope:'starting',fixedOpponent:true},{type:'manual',message:'Opponent discards one card manually.'}]},
- 'Hot Air Charm':{steps:[{type:'clearFreeze'} ,{type:'manual',message:'Draw 1 card manually.'}]},
+ 'Hot Air Charm':{steps:[{type:'clearFreeze'}]},
  'Oppugno':{steps:[{type:'oppugno',scope:'player',fixedOpponent:true}]},
  'Arrow Shooting Spell':{steps:[{type:'arrowChoice',scope:'player',fixedOpponent:true}]},
  'Gubridian Fire':{steps:[{type:'gubridian'}]},
@@ -1975,7 +1986,7 @@ const AUTO_DAMAGE_SPELLS={
   'Essence of Dittany':{steps:[{type:'heal',amount:2,scope:'any',onlyOwn:true}]},
  'Weasley Fireworks':{steps:[{type:'damage',scope:'creature',amount:1}]},
  'Bludger':{steps:[{type:'damage',scope:'creatureOrPlayer',amount:2,onlyOpponent:true}]},
- 'Crystal Ball':{steps:[{type:'damage',scope:'any',amount:1},{type:'manual',message:'Draw 1 card manually.'}]},
+ 'Crystal Ball':{steps:[{type:'damage',scope:'any',amount:1}]},
  'Luna\'s Thestral':{steps:[{type:'thestral',scope:'any',amount:2}]},
  'Duel of the Seekers':{steps:[{type:'duel',scope:'player',fixedOpponent:true}]},
  'FiendFyre':{steps:[{type:'damage',amount:2,scope:'creatureOrPlayer'}]},
@@ -2307,6 +2318,7 @@ function autoStartFromCast(p,c){
   if(spec)return autoOpen(spec);
   toast(c.name+': resolve its On Play effect manually.');return true;
  }
+ if(c.name==='Carpe Retractum'||c.name==='Wingardium Leviosa'){c.effectPendingV244=true;return true;}
  if(c.name==='Bat Bogey Hex'){c.batBogeyPendingV231=true;return true;}
  if(c.name==='Priori Incantatem'){c.prioriPendingV227=true;return true;}
  if(['Flipendo','Accio','Atmospheric Charm'].includes(c.name)){c.effectPendingV228=true;return true;}
@@ -2459,7 +2471,7 @@ function autoApplyChosen(){
   P[s.player].play.filter(c=>c.type==='Creature').forEach(c=>autoShield(autoRef(s.player,c),5));
  }
  else if(step.type==='gubridian')autoTargetList('creature',s.player,false).forEach(r=>dmg(r,2+extra));
- else if(step.type==='clearFreeze')for(const c of [P[s.player].char,...P[s.player].play])autoUnfreeze(c);
+ else if(step.type==='clearFreeze'){for(const c of [P[s.player].char,...P[s.player].play])autoUnfreeze(c);if(s.name==='Hot Air Charm'){draw(s.player,1);autoLog(s.player,'Hot Air Charm: unfroze friendly cards and drew 1 card.');}}
  if(damageLog.length)autoLog(s.player,s.name+': '+damageLog.join('; '));
  else autoLog(s.player,s.name+' — '+step.type+' effect resolved.');
  discardDefeatedCreaturesV159();autoNextStep();render();flushSpellImpactV162();
@@ -2582,15 +2594,83 @@ function autoActivateField(p,id){
  if(!autoCanControl(p)||autoEngine.pending||spellChainActive())return;
  const f=locate(p,id);if(!f||f.a!==P[p].play)return;
  const c=f.c,config=AUTO_DAMAGE_SPELLS[c.name];if(!config)return;
- const active=['Weasley Fireworks','Crystal Ball','Luna\'s Thestral'].includes(c.name);
+ const active=['Weasley Fireworks','Luna\'s Thestral'].includes(c.name);
  if(!active){toast('This card triggers automatically on its appropriate event.');return;}
  if(c.frozen){toast('Frozen cards cannot activate abilities.');return;}
  if(c.abilityUsedTurn===P[p].turnSerial){toast('Ability already used this turn.');return;}
  pushHistory();c.abilityUsedTurn=P[p].turnSerial;
  autoOpen(autoBuildSpec(p,c,{source:'field',shouldDiscard:false}));render();
 }
+// v1.244 — One-shot Item-return spells. Selection is controller-only; state is published once resolved.
+function returnItemFromPlayV244(p,side,cardId){
+ const at=P[side].play.findIndex(c=>c.id===cardId&&c.type==='Item');if(at<0)return false;
+ const item=P[side].play.splice(at,1)[0],owner=originalOwnerV191(item,side);
+ item.tapped=false;delete item.autoEntered;P[owner].hand.push(item);
+ if(item.name==='Golden Snitch'||item.name==='Bludger'){
+  if(autoCanControl(owner)){
+   if(item.name==='Golden Snitch')snitchDrawV219(owner,'Golden Snitch returned to hand');
+   else{const spec=autoBuildSpec(owner,item,{source:'returnToHand'});if(spec)autoEnqueue(spec);}
+  }else{(P[owner].returnedItemTriggersV244??=[]).push({id:item.id,name:item.name});}
+ }
+ autoLog(p,item.name+' returned to Player '+owner+' hand.');return true;
+}
+async function resolveReturnSpellV244(p,spellId){
+ if(!autoCanControl(p))return;
+ const spell=P[p].play.find(c=>c.id===spellId);if(!spell)return;
+ const carpe=spell.name==='Carpe Retractum',wing=spell.name==='Wingardium Leviosa';if(!carpe&&!wing)return;
+ const side=carpe&&spell.carpeExtraV244?3-p:p;
+ const max=carpe?2:1;
+ let done=0;
+ for(let step=0;step<max;step++){
+  if(!autoCanControl(p)||!P[p].play.some(c=>c.id===spellId))break;
+  const cards=P[side].play.filter(c=>c.type==='Item');if(!cards.length)break;
+  const chosen=await queueCardChoiceV222(spell.name+' — Return Item', 'Choose an Item to return to its owner’s hand. Cancel to skip remaining selections.',cards);
+  if(chosen===null)break;
+  if(!autoCanControl(p))break;
+  if(returnItemFromPlayV244(p,side,chosen))done++;
+ }
+ if(wing&&spell.wingExtraV244&&autoCanControl(p)){
+  const cards=P[p].discard.filter(c=>c.type==='Item');
+  if(cards.length){
+   const chosen=await queueCardChoiceV222('Wingardium Leviosa — Recover Item','Choose an Item from your discard to add to your hand.',cards);
+   if(chosen!==null&&autoCanControl(p)){
+    const ix=P[p].discard.findIndex(c=>c.id===chosen&&c.type==='Item');
+    if(ix>=0){const item=P[p].discard.splice(ix,1)[0];P[originalOwnerV191(item,p)].hand.push(item);done++;autoLog(p,'Wingardium Leviosa recovered '+item.name+' from discard.');}
+   }
+  }
+ }
+ const pos=P[p].play.findIndex(c=>c.id===spellId);
+ if(pos>=0)putInOwnersDiscardV191(P[p].play.splice(pos,1)[0],p);
+ autoLog(p,spell.name+': resolved '+done+' Item return(s).');commitCardChoiceV230(p);
+}
+// Crystal Ball watches public discard departures, regardless of which effect recovers a card.
+function processReturnedItemTriggersV244(p){
+ if(!autoCanControl(p))return;
+ const list=P[p].returnedItemTriggersV244||[];if(!list.length)return;
+ P[p].returnedItemTriggersV244=[];
+ for(const trigger of list){
+  const item=P[p].hand.find(c=>c.id===trigger.id&&c.name===trigger.name);if(!item)continue;
+  if(item.name==='Golden Snitch')snitchDrawV219(p,'Golden Snitch returned to hand');
+  if(item.name==='Bludger'){const spec=autoBuildSpec(p,item,{source:'returnToHand'});if(spec)autoEnqueue(spec);}
+ }
+ if(lobbyMode==='invite'&&onlineStarted)onlinePublish('state');
+}
+function crystalBallWatchV244(p){
+ const player=P[p],now=(player.discard||[]).map(c=>c.id),prior=player.crystalDiscardIdsV244;
+ player.crystalDiscardIdsV244=now;
+ const ball=player.play.find(c=>c.name==='Crystal Ball'&&!c.frozen);
+ if(!ball||!Array.isArray(prior)||!autoCanControl(p))return;
+ if(!prior.some(key=>!now.includes(key)))return;
+ if(ball.abilityUsedTurn===player.turnSerial)return;
+ ball.abilityUsedTurn=player.turnSerial;
+ draw(p,1);autoLog(p,'Crystal Ball: card left discard; drew 1 card and may deal 1 damage.');
+ const spec=autoBuildSpec(p,ball,{source:'field',shouldDiscard:false});
+ if(spec){spec.steps=spec.steps.filter(step=>step.type!=='manual');autoEnqueue(spec);}
+ if(lobbyMode==='invite'&&onlineStarted)onlinePublish('state');
+}
 function autoCheckNewEntrants(){
  if(phase!=='game')return;
+ for(let p=1;p<=2;p++){processReturnedItemTriggersV244(p);crystalBallWatchV244(p);}
  for(let p=1;p<=2;p++){syncCanutoFreezeV210(p);resolveFireBoltDrawsV219(p);}
  for(let p=1;p<=2;p++)for(const z of ['hand','discard','exile','main'])for(const c of P[p][z]||[])if(c.autoEntered)delete c.autoEntered;
  for(let p=1;p<=2;p++)for(const z of ['hand','main','play'])for(const c of P[p][z]||[])if(c.name==='Hinkypunk')delete c.hinkypunkDiscardTriggeredV208;
@@ -2598,6 +2678,7 @@ function autoCheckNewEntrants(){
   if(!autoCanControl(p))continue;
   if(c.name==='Bat Bogey Hex'&&c.batBogeyPendingV231&&!c.batBogeyResolvingV231){c.batBogeyResolvingV231=true;queueMicrotask(()=>resolveBatBogeyV231(p,c.id));}
   if(c.name==='Priori Incantatem'&&c.prioriPendingV227){c.prioriPendingV227=false;queueMicrotask(()=>resolvePrioriV227(p,c.id));}
+  if(c.effectPendingV244){c.effectPendingV244=false;queueMicrotask(()=>resolveReturnSpellV244(p,c.id));}
   if(c.effectPendingV228){c.effectPendingV228=false;queueMicrotask(()=>resolveCardEffectV228(p,c.id));}
   if(c.expectoPendingV230){c.expectoPendingV230=false;queueMicrotask(()=>expectoPatronusV230(p,c.id));}
   if(c.name==='Bowtruckle'&&!c.bowtruckleTriggeredV231){c.bowtruckleTriggeredV231=true;queueMicrotask(()=>resolveBowtruckleV228(p,c.id));}
@@ -2896,7 +2977,7 @@ function showSpotlightV239(data){
  if(!data||typeof data.image!=='string'||!data.image||typeof data.name!=='string')return;
  const el=spotlightUiV239(),img=el.querySelector('img');
  clearTimeout(spotlightTimerV239);el.classList.remove('active');
- // v1.243: Restart the IMAGE animation too. Its previous `animation-fill-mode: both`
+ // v1.244: Restart the IMAGE animation too. Its previous `animation-fill-mode: both`
  // otherwise retains opacity:0 after the first card even if the overlay reopens.
  img.style.animation='none';img.style.opacity='1';
  img.src=data.image;img.alt=data.name;el.style.setProperty('--spot-color',spotlightColorsV239[data.domain]||spotlightColorsV239.Neutral);
@@ -2919,7 +3000,7 @@ function sendSpotlightV239(p,c){
  if(lobbyMode!=='invite'||!onlineStarted||!onlineConnected||onlineRole!==p)return;
  onlineSend('visual-card-v239',{name:c.name,image:c.image,domain:d.domain||c.domain||'Neutral',sourcePlayer:p});
 }
-// v1.243 — ally ability display is cosmetic; independent of game resolution.
+// v1.244 — ally ability display is cosmetic; independent of game resolution.
 function spotlightAllyAbilityV242(p,name){
  const ally=P[p]?.char;
  if(!ally||ally.name!==name||!autoCanControl(p))return;
@@ -3363,7 +3444,7 @@ function makeCard(c,p,z){let x=document.createElement('div');let hidden=z==='han
  if(z==='play'&&c.name==='Beater'){
   const act=document.createElement('button');act.className='autoAttackBtn';act.textContent='✦';act.title='Beater: discard a card to return a Quidditch Item (once per turn)';act.style.cssText='left:0;right:auto;bottom:0';act.onclick=e=>{e.stopPropagation();activateBeater(p,c.id)};x.appendChild(act);
  }
- if(z==='play'&&['Weasley Fireworks','Crystal Ball',"Luna's Thestral",'Death Eater','Time Turner','Memory Vial','Portkey'].includes(c.name)){
+ if(z==='play'&&['Weasley Fireworks',"Luna's Thestral",'Death Eater','Time Turner','Memory Vial','Portkey'].includes(c.name)){
   const act=document.createElement('button');act.className='autoAttackBtn';act.textContent='✦';act.title='Activate ability (once per turn where applicable)';act.onclick=e=>{e.stopPropagation();autoActivateField(p,c.id)};x.appendChild(act);
  }
  if(z==='play'&&c.type==='Creature'){
@@ -3859,7 +3940,7 @@ function startingAllyStatus(status){
  render();
  toast(P[p].char.name+' '+status+(P[p].char[status]?' applied.':' removed.'));
 }
-// v1.243 — Draco: discard one of your hand cards, then choose from the enemy hand.
+// v1.244 — Draco: discard one of your hand cards, then choose from the enemy hand.
 async function activateDracoV242(p){
  document.getElementById('startingAllyMenu').style.display='none';
  const s=P[p],foe=P[3-p];
