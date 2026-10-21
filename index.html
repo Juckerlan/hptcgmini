@@ -2894,8 +2894,12 @@ function showSpotlightV239(data){
  if(!data||typeof data.image!=='string'||!data.image||typeof data.name!=='string')return;
  const el=spotlightUiV239(),img=el.querySelector('img');
  clearTimeout(spotlightTimerV239);el.classList.remove('active');
+ // v1.241: Restart the IMAGE animation too. Its previous `animation-fill-mode: both`
+ // otherwise retains opacity:0 after the first card even if the overlay reopens.
+ img.style.animation='none';img.style.opacity='1';
  img.src=data.image;img.alt=data.name;el.style.setProperty('--spot-color',spotlightColorsV239[data.domain]||spotlightColorsV239.Neutral);
- void el.offsetWidth;el.classList.add('active');
+ void img.offsetWidth;
+ img.style.animation='';el.classList.add('active');
  spotlightTimerV239=setTimeout(()=>{el.classList.remove('active');},2000);
 }
 function opponentActivityV239(message,active){
