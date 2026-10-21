@@ -653,8 +653,8 @@
   "Crucio": {
     "type": "Dark Spell",
     "domain": "Dark Arts",
-    "cost": 5,
-    "effect": "Choose a target. It cannot attack. At the beginning of each of your turns, deal 3 damage to it. This effect lasts as long as Crucio remains in play.",
+    "cost": 4,
+    "effect": "Countdown 2: Deal 2 damage to a target. If it's a Creature and survives, Freeze it. If it's the opposing Player, they discard 1 Lesson.",
     "image": "cards/dark/dark_crucio.png"
   },
   "Hot Air Charm": {
@@ -899,5 +899,33 @@
     "damage": 1,
     "effect": "Block. When this would be destroyed, you may discard a card. If you do, return it to its owner's hand instead.",
     "image": "cards/creatures/creature_mategot.png"
+  },
+  "Prantastic Present": {
+    "type": "Item",
+    "domain": "Potions",
+    "cost": 3,
+    "effect": "Countdown 1: Your opponent draws 1 card. When this card is discarded, deal 2 damage to all opposing targets.",
+    "image": "cards/potions/potinos_present.png"
+  },
+  "Inflatus": {
+    "type": "Spell",
+    "domain": "Transfiguration",
+    "cost": 2,
+    "effect": "Freeze up to 2 targets. The next Spell you play this turn that deals damage also deals that damage to each of those targets.",
+    "image": "cards/transfiguration/transf_inflatus.png"
+  },
+  "Expulso": {
+    "type": "Spell",
+    "domain": "Charms",
+    "cost": 3,
+    "effect": "Deal 2 damage to the opposing Player. They discard 1 card.",
+    "image": "cards/charms/charm_expulso.png"
+  },
+  "Essence of Dittany": {
+    "type": "Potion",
+    "domain": "Potions",
+    "cost": 3,
+    "effect": "Countdown 2: Restore 2 Health to any one of your targets.",
+    "image": "cards/potions/potinos_dittany.png"
   }
 }
